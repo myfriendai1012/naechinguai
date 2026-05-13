@@ -1223,6 +1223,39 @@
 
 <script>
   /* ═══════════════════════════════
+     Cloudflare KV 헬퍼
+     (기기 간 데이터 동기화)
+  ═══════════════════════════════ */
+  const KV_BASE = '/api/kv';
+
+  async function kvGet(key) {
+    try {
+      const res = await fetch(`${KV_BASE}?key=${encodeURIComponent(key)}`);
+      const data = await res.json();
+      return data.value ? JSON.parse(data.value) : null;
+    } catch (e) {
+      // KV 실패 시 localStorage 폴백
+      const v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : null;
+    }
+  }
+
+  async function kvSet(key, value) {
+    try {
+      // localStorage에도 동시 저장 (오프라인 대비)
+      localStorage.setItem(key, JSON.stringify(value));
+      await fetch(`${KV_BASE}?key=${encodeURIComponent(key)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(value)
+      });
+    } catch (e) {
+      // KV 실패해도 localStorage에는 저장됨
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+  }
+
+  /* ═══════════════════════════════
      상태 변수
   ═══════════════════════════════ */
   let userProfile = null;
@@ -1257,12 +1290,17 @@
   /* ═══════════════════════════════
      로그인
   ═══════════════════════════════ */
-  function doLogin() {
+  async function doLogin() {
     const id = document.getElementById('login-id').value.trim();
     const pw = document.getElementById('login-pw').value;
-    const stored = JSON.parse(localStorage.getItem(LS_USERS) || '{}');
     const errEl = document.getElementById('login-error');
     if (!id || !pw) { errEl.textContent = '❌ 아이디와 비밀번호를 모두 입력해 주세요.'; errEl.classList.add('show'); return; }
+
+    // KV에서 먼저 불러오기 (없으면 localStorage 사용)
+    let stored = await kvGet(LS_USERS) || JSON.parse(localStorage.getItem(LS_USERS) || '{}');
+    // KV에서 가져온 데이터를 localStorage에도 동기화
+    if (stored && Object.keys(stored).length > 0) localStorage.setItem(LS_USERS, JSON.stringify(stored));
+
     if (!stored[id] || stored[id].pw !== pw) {
       errEl.textContent = '❌ 아이디 또는 비밀번호가 맞지 않아요.';
       errEl.classList.add('show');
@@ -1281,9 +1319,12 @@
   /* ═══════════════════════════════
      이전 대화 불러오기 + 재방문 인사
   ═══════════════════════════════ */
-  function loadHistoryAndGo(uid) {
-    const savedHistory = JSON.parse(localStorage.getItem(LS_HISTORY(uid)) || '[]');
-    const savedMemory  = JSON.parse(localStorage.getItem(LS_MEMORY(uid))  || '[]');
+  async function loadHistoryAndGo(uid) {
+    // KV에서 대화 기록 불러오기 (없으면 localStorage 사용)
+    const kvHistory = await kvGet(LS_HISTORY(uid));
+    const savedHistory = kvHistory || JSON.parse(localStorage.getItem(LS_HISTORY(uid)) || '[]');
+    const savedMemory  = JSON.parse(localStorage.getItem(LS_MEMORY(uid)) || '[]');
+    if (kvHistory) localStorage.setItem(LS_HISTORY(uid), JSON.stringify(kvHistory)); // 동기화
     chatHistory = savedHistory;
     memoryNotes = savedMemory;
     renderMemory();
@@ -1528,7 +1569,10 @@ ${langInstr}
   function saveHistory(role, content) {
     chatHistory.push({ role, content });
     if (chatHistory.length > 60) chatHistory = chatHistory.slice(-60);
-    if (currentUserId) localStorage.setItem(LS_HISTORY(currentUserId), JSON.stringify(chatHistory));
+    if (currentUserId) {
+      localStorage.setItem(LS_HISTORY(currentUserId), JSON.stringify(chatHistory));
+      kvSet(LS_HISTORY(currentUserId), chatHistory); // KV에도 저장
+    }
   }
 
   /* ═══════════════════════════════
@@ -1720,6 +1764,7 @@ ${langInstr}
     currentUserId = userId;
     stored[userId] = { name, age, gender, personality, interests, message, pw: userPw };
     localStorage.setItem(LS_USERS, JSON.stringify(stored));
+    kvSet(LS_USERS, stored); // KV에도 저장
     chatHistory = [];
     memoryNotes = [];
     bondXP = 0; bondLevel = 1;
@@ -2371,11 +2416,18 @@ ${langInstr}
   const CAT_LABELS = { payment:'💰 결제 문의', feature:'💡 기능 건의', edu:'📚 교육 상담', etc:'💬 기타' };
   const CAT_CLASS  = { payment:'board-cat-payment', feature:'board-cat-feature', edu:'board-cat-edu', etc:'board-cat-etc' };
 
-  function loadBoardPosts() {
-    boardPosts = JSON.parse(localStorage.getItem(LS_BOARD) || '[]');
+  async function loadBoardPosts() {
+    const kvPosts = await kvGet(LS_BOARD);
+    if (kvPosts) {
+      boardPosts = kvPosts;
+      localStorage.setItem(LS_BOARD, JSON.stringify(kvPosts)); // 동기화
+    } else {
+      boardPosts = JSON.parse(localStorage.getItem(LS_BOARD) || '[]');
+    }
   }
   function saveBoardPosts() {
     localStorage.setItem(LS_BOARD, JSON.stringify(boardPosts));
+    kvSet(LS_BOARD, boardPosts); // KV에도 저장
   }
 
   function renderBoard() {
