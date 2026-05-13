@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>루나 관리자 페이지</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #6C5CE7; --pl: #EDE9FF; --pm: #AFA9EC;
+    --success: #00B894; --sl: #E1F5EE;
+    --warn: #EF9F27; --wl: #FFF3DC;
+    --danger: #E17055; --dl: #FAECE7;
+    --bg: #F8F7FF; --surface: #fff;
+    --text: #2d2b4e; --muted: #9996b8;
+    --border: #e8e5ff;
+    --radius: 12px; --radius-sm: 8px;
+    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── 로그인 ── */
+  .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+  .login-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; width: 100%; max-width: 360px; text-align: center; }
+  .login-orb { width: 60px; height: 60px; border-radius: 50%; background: var(--pl); display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 16px; }
+  .login-title { font-size: 20px; font-weight: 900; color: var(--text); margin-bottom: 6px; }
+  .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .login-inp { width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px 14px; font-size: 14px; font-family: inherit; color: var(--text); background: var(--bg); outline: none; margin-bottom: 10px; }
+  .login-inp:focus { border-color: var(--primary); }
+  .login-btn { width: 100%; padding: 12px; border-radius: var(--radius-sm); background: var(--primary); color: white; font-size: 14px; font-weight: 800; font-family: inherit; border: none; cursor: pointer; }
+  .login-btn:hover { background: #5a4dd4; }
+  .login-err { font-size: 12px; color: var(--danger); margin-top: 8px; display: none; }
+
+  /* ── 관리자 레이아웃 ── */
+  .admin-shell { display: none; min-height: 100vh; }
+  .admin-header { background: var(--primary); color: white; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .admin-header-left { display: flex; align-items: center; gap: 10px; }
+  .admin-logo { font-size: 22px; font-weight: 900; }
+  .admin-badge { background: rgba(255,255,255,.2); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+  .admin-logout { background: rgba(255,255,255,.15); border: none; color: white; font-size: 12px; font-weight: 700; padding: 7px 14px; border-radius: var(--radius-sm); cursor: pointer; font-family: inherit; }
+  .admin-body { max-width: 1100px; margin: 0 auto; padding: 24px; display: grid; gap: 20px; }
+
+  /* ── 카드 ── */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .card-title { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .card-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+
+  /* ── 통계 ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+  .stat { background: var(--bg); border-radius: var(--radius-sm); padding: 14px; text-align: center; }
+  .stat-n { font-size: 28px; font-weight: 900; color: var(--primary); }
+  .stat-l { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+  /* ── 검색 ── */
+  .search-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+  .search-inp { flex: 1; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; font-family: inherit; color: var(--text); background: var(--bg); outline: none; }
+  .search-inp:focus { border-color: var(--primary); }
+  .search-btn { padding: 10px 20px; border-radius: var(--radius-sm); background: var(--primary); color: white; border: none; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap; }
+  .search-btn:hover { background: #5a4dd4; }
+  .search-all-btn { padding: 10px 14px; border-radius: var(--radius-sm); background: var(--pl); color: var(--primary); border: none; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap; }
+
+  /* ── 사용자 카드 ── */
+  .user-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 10px; }
+  .user-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+  .user-name { font-size: 15px; font-weight: 800; color: var(--text); }
+  .user-id { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .plan-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+  .plan-free { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+  .plan-bff { background: var(--pl); color: var(--primary); }
+  .plan-eternal { background: #FFF3DC; color: #7a4800; }
+  .user-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-bottom: 12px; flex-wrap: wrap; }
+  .user-meta span { display: flex; align-items: center; gap: 4px; }
+
+  /* 플랜 변경 */
+  .plan-change { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .plan-btn { padding: 7px 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; color: var(--muted); transition: all .15s; }
+  .plan-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--pl); }
+  .plan-btn.active-plan { border-color: var(--primary); background: var(--pl); color: var(--primary); }
+  .expiry-wrap { display: flex; align-items: center; gap: 6px; }
+  .expiry-inp { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 10px; font-size: 12px; font-family: inherit; color: var(--text); background: var(--surface); outline: none; }
+  .expiry-inp:focus { border-color: var(--primary); }
+  .save-btn { padding: 7px 16px; border-radius: var(--radius-sm); background: var(--success); color: white; border: none; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; }
+  .save-btn:hover { background: #009d7e; }
+  .saved-msg { font-size: 11px; color: var(--success); font-weight: 700; display: none; }
+
+  /* ── 게시판 ── */
+  .board-item { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 8px; }
+  .board-item.has-reply { border-left: 3px solid var(--success); }
+  .board-item.no-reply { border-left: 3px solid var(--warn); }
+  .board-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+  .board-cat { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+  .cat-payment { background: #FFF3DC; color: #7a4800; }
+  .cat-feature { background: var(--pl); color: var(--primary); }
+  .cat-edu { background: var(--sl); color: #0F6E56; }
+  .cat-etc { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+  .board-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .board-body { font-size: 12px; color: var(--text); line-height: 1.7; margin-bottom: 10px; background: var(--surface); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+  .board-meta { font-size: 11px; color: var(--muted); margin-bottom: 10px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .reply-section { margin-top: 10px; }
+  .reply-item { background: var(--pl); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 6px; }
+  .reply-meta { font-size: 11px; color: var(--primary); font-weight: 700; margin-bottom: 3px; }
+  .reply-body { font-size: 12px; color: var(--text); line-height: 1.6; }
+  .reply-form { display: flex; gap: 8px; margin-top: 8px; }
+  .reply-inp { flex: 1; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 12px; font-family: inherit; color: var(--text); background: var(--surface); outline: none; resize: vertical; min-height: 60px; }
+  .reply-inp:focus { border-color: var(--primary); }
+  .reply-btn { padding: 8px 16px; border-radius: var(--radius-sm); background: var(--primary); color: white; border: none; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap; align-self: flex-end; }
+  .reply-btn:hover { background: #5a4dd4; }
+  .no-reply-badge { display: inline-block; font-size: 10px; font-weight: 700; background: var(--wl); color: var(--warn); padding: 2px 8px; border-radius: 20px; }
+  .replied-badge { display: inline-block; font-size: 10px; font-weight: 700; background: var(--sl); color: var(--success); padding: 2px 8px; border-radius: 20px; }
+
+  /* ── 탭 ── */
+  .tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid var(--border); }
+  .tab { padding: 10px 18px; font-size: 13px; font-weight: 700; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: inherit; background: none; border-top: none; border-left: none; border-right: none; transition: all .15s; }
+  .tab.on { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* ── 알림 ── */
+  .toast { position: fixed; top: 20px; right: 20px; background: var(--success); color: white; padding: 12px 20px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; z-index: 9999; animation: slideIn .3s ease; box-shadow: 0 4px 20px rgba(0,184,148,.3); display: none; }
+  @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  .empty { text-align: center; padding: 32px; color: var(--muted); font-size: 14px; }
+  .divider { height: 1px; background: var(--border); margin: 12px 0; }
+</style>
+</head>
+<body>
+
+<!-- 로그인 화면 -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-orb">🔐</div>
+    <div class="login-title">루나 관리자</div>
+    <div class="login-sub">관리자 비밀번호를 입력해 주세요</div>
+    <input class="login-inp" type="password" id="admin-pw" placeholder="관리자 비밀번호" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    <button class="login-btn" onclick="doAdminLogin()">🔐 로그인</button>
+    <div class="login-err" id="login-err">❌ 비밀번호가 틀렸어요.</div>
+  </div>
+</div>
+
+<!-- 관리자 대시보드 -->
+<div class="admin-shell" id="admin-shell">
+
+  <div class="admin-header">
+    <div class="admin-header-left">
+      <div class="admin-logo">🌙 루나</div>
+      <div class="admin-badge">관리자 모드</div>
+    </div>
+    <button class="admin-logout" onclick="doLogout()">로그아웃</button>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- 탭 -->
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab(this,'tab-overview')">📊 현황</button>
+      <button class="tab" onclick="switchTab(this,'tab-users')">👤 사용자 관리</button>
+      <button class="tab" onclick="switchTab(this,'tab-board')">📋 게시판 관리</button>
+    </div>
+
+    <!-- ① 현황 탭 -->
+    <div id="tab-overview">
+      <div class="card">
+        <div class="card-title">📊 전체 현황</div>
+        <div class="stats-grid" id="stats-grid"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">💳 미처리 결제 문의</div>
+        <div id="pending-payments"></div>
+      </div>
+    </div>
+
+    <!-- ② 사용자 관리 탭 -->
+    <div id="tab-users" style="display:none">
+      <div class="card">
+        <div class="card-title">👤 사용자 검색 및 플랜 변경</div>
+        <div class="search-bar">
+          <input class="search-inp" id="search-inp" placeholder="아이디 또는 이름으로 검색..." onkeydown="if(event.key==='Enter')searchUser()">
+          <button class="search-btn" onclick="searchUser()">🔍 검색</button>
+          <button class="search-all-btn" onclick="showAllUsers()">전체 보기</button>
+        </div>
+        <div id="user-list"></div>
+      </div>
+    </div>
+
+    <!-- ③ 게시판 관리 탭 -->
+    <div id="tab-board" style="display:none">
+      <div class="card">
+        <div class="card-title">📋 게시글 관리
+          <span style="margin-left:auto;display:flex;gap:6px">
+            <button onclick="filterBoard('all')" id="bf-all" style="padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--primary);color:white;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">전체</button>
+            <button onclick="filterBoard('noreply')" id="bf-noreply" style="padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">미답변</button>
+          </span>
+        </div>
+        <div id="board-list"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 관리자 비밀번호 ────────────────────────────
+// 배포 전 반드시 변경하세요!
+const ADMIN_PW = '리딩365';
+
+// ── localStorage 키 (앱과 동일) ───────────────
+const LS_USERS  = 'luna_users';
+const LS_BOARD  = 'luna_board_posts';
+const LS_BOND   = uid => `luna_bond_${uid}`;
+const LS_WEEKLY = uid => `luna_weekly_${uid}`;
+const LS_STREAK = uid => `luna_streak_${uid}`;
+const LS_MONTHLY= uid => `luna_monthly_${uid}`;
+
+let isLoggedIn = false;
+let boardFilter = 'all';
+
+// ── 로그인 ─────────────────────────────────────
+function doAdminLogin() {
+  const pw = document.getElementById('admin-pw').value;
+  if (pw === ADMIN_PW) {
+    isLoggedIn = true;
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('admin-shell').style.display = 'block';
+    loadDashboard();
+  } else {
+    const err = document.getElementById('login-err');
+    err.style.display = 'block';
+    document.getElementById('admin-pw').value = '';
+    document.getElementById('admin-pw').focus();
+    setTimeout(() => err.style.display = 'none', 3000);
+  }
+}
+
+function doLogout() {
+  isLoggedIn = false;
+  document.getElementById('login-wrap').style.display = 'flex';
+  document.getElementById('admin-shell').style.display = 'none';
+  document.getElementById('admin-pw').value = '';
+}
+
+// ── 탭 전환 ────────────────────────────────────
+function switchTab(btn, tabId) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
+  ['tab-overview','tab-users','tab-board'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = id === tabId ? '' : 'none';
+  });
+  btn.classList.add('on');
+  if (tabId === 'tab-board') renderBoard();
+  if (tabId === 'tab-users') showAllUsers();
+  if (tabId === 'tab-overview') loadDashboard();
+}
+
+// ── 데이터 읽기 ────────────────────────────────
+function getUsers() {
+  return JSON.parse(localStorage.getItem(LS_USERS) || '{}');
+}
+function getPlan(uid) {
+  const bond = JSON.parse(localStorage.getItem(LS_BOND(uid)) || '{}');
+  return bond.plan || 'free';
+}
+function getExpiry(uid) {
+  const bond = JSON.parse(localStorage.getItem(LS_BOND(uid)) || '{}');
+  return bond.planExpiry || '';
+}
+function getWeeklyCount(uid) {
+  const data = JSON.parse(localStorage.getItem(LS_WEEKLY(uid)) || '{}');
+  const today = new Date();
+  const day = today.getDay();
+  const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+  const mon = new Date(today.setDate(diff));
+  const weekKey = `${mon.getFullYear()}-${mon.getMonth()+1}-${mon.getDate()}`;
+  return data.week === weekKey ? (data.count || 0) : 0;
+}
+function getStreak(uid) {
+  const data = JSON.parse(localStorage.getItem(LS_STREAK(uid)) || '{}');
+  return data.count || 0;
+}
+function getMonthly(uid) {
+  const data = JSON.parse(localStorage.getItem(LS_MONTHLY(uid)) || '{}');
+  const d = new Date();
+  const key = `${d.getFullYear()}-${d.getMonth()+1}`;
+  return data.month === key ? data : { chat:0, book:0, schedDone:0 };
+}
+function getBoardPosts() {
+  return JSON.parse(localStorage.getItem(LS_BOARD) || '[]');
+}
+
+// ── 플랜 변경 저장 ──────────────────────────────
+function savePlan(uid, plan, expiry) {
+  const bond = JSON.parse(localStorage.getItem(LS_BOND(uid)) || '{}');
+  bond.plan = plan;
+  bond.planExpiry = expiry || '';
+  localStorage.setItem(LS_BOND(uid), JSON.stringify(bond));
+}
+
+// ── 대시보드 ────────────────────────────────────
+function loadDashboard() {
+  const users = getUsers();
+  const uids = Object.keys(users);
+  let free = 0, bff = 0, eternal = 0;
+  uids.forEach(uid => {
+    const p = getPlan(uid);
+    if (p === 'bff') bff++;
+    else if (p === 'eternal') eternal++;
+    else free++;
+  });
+  const posts = getBoardPosts();
+  const noReply = posts.filter(p => !p.replies || p.replies.length === 0).length;
+  const revenue = bff * 9900 + eternal * 16500;
+
+  document.getElementById('stats-grid').innerHTML = [
+    { n: uids.length, l: '전체 사용자' },
+    { n: free, l: '🆓 프리 플랜' },
+    { n: bff, l: '💜 베프 플랜' },
+    { n: eternal, l: '🌟 영원한 친구' },
+    { n: `₩${revenue.toLocaleString()}`, l: '이번 달 예상 매출' },
+    { n: noReply, l: '📋 미답변 게시글' },
+  ].map(s => `<div class="stat"><div class="stat-n">${s.n}</div><div class="stat-l">${s.l}</div></div>`).join('');
+
+  // 미처리 결제 문의
+  const payPosts = posts.filter(p => p.cat === 'payment' && (!p.replies || p.replies.length === 0));
+  const pp = document.getElementById('pending-payments');
+  if (payPosts.length === 0) {
+    pp.innerHTML = '<div class="empty">미처리 결제 문의가 없어요 ✅</div>';
+  } else {
+    pp.innerHTML = payPosts.reverse().map(p => `
+      <div class="board-item no-reply">
+        <div class="board-head"><span class="board-cat cat-payment">💰 결제 문의</span><span class="no-reply-badge">미답변</span></div>
+        <div class="board-title">${p.title}</div>
+        <div class="board-meta"><span>✍️ ${p.authorName}</span><span>📅 ${p.date}</span><span>🔑 ${p.authorId}</span></div>
+        <div class="board-body">${p.body.replace(/\n/g,'<br>')}</div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button onclick="quickPlanChange('${p.authorId}','bff')" style="padding:7px 14px;border-radius:8px;background:var(--pl);color:var(--primary);border:none;font-size:12px;font-weight:700;cursor:pointer">💜 베프 플랜 활성화</button>
+          <button onclick="quickPlanChange('${p.authorId}','eternal')" style="padding:7px 14px;border-radius:8px;background:#FFF3DC;color:#7a4800;border:none;font-size:12px;font-weight:700;cursor:pointer">🌟 영원한 친구 활성화</button>
+          <button onclick="goReply(${p.id})" style="padding:7px 14px;border-radius:8px;background:var(--success);color:white;border:none;font-size:12px;font-weight:700;cursor:pointer">✏️ 답글 달기</button>
+        </div>
+      </div>`).join('');
+  }
+}
+
+// 빠른 플랜 변경 (현황 탭에서)
+function quickPlanChange(uid, plan) {
+  const users = getUsers();
+  if (!users[uid]) { showToast('❌ 사용자를 찾을 수 없어요.'); return; }
+  const d = new Date(); d.setMonth(d.getMonth()+1);
+  const expiry = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  savePlan(uid, plan, expiry);
+  const names = { bff:'베프 플랜', eternal:'영원한 친구 플랜' };
+  showToast(`✅ ${uid} → ${names[plan]} 활성화 완료! (만료: ${expiry})`);
+  loadDashboard();
+}
+
+// 답글 탭으로 이동
+function goReply(postId) {
+  document.querySelectorAll('.tab')[2].click();
+  setTimeout(() => {
+    const el = document.getElementById(`reply-inp-${postId}`);
+    if (el) { el.scrollIntoView({ behavior:'smooth' }); el.focus(); }
+  }, 300);
+}
+
+// ── 사용자 검색 & 목록 ──────────────────────────
+function searchUser() {
+  const q = document.getElementById('search-inp').value.trim().toLowerCase();
+  if (!q) { showAllUsers(); return; }
+  const users = getUsers();
+  const filtered = Object.entries(users).filter(([uid, u]) =>
+    uid.toLowerCase().includes(q) || (u.name && u.name.toLowerCase().includes(q))
+  );
+  renderUserList(filtered);
+}
+
+function showAllUsers() {
+  const users = getUsers();
+  renderUserList(Object.entries(users));
+}
+
+function renderUserList(entries) {
+  const el = document.getElementById('user-list');
+  if (entries.length === 0) { el.innerHTML = '<div class="empty">검색 결과가 없어요.</div>'; return; }
+  el.innerHTML = entries.map(([uid, u]) => {
+    const plan = getPlan(uid);
+    const expiry = getExpiry(uid);
+    const weekly = getWeeklyCount(uid);
+    const streak = getStreak(uid);
+    const monthly = getMonthly(uid);
+    const planLabel = { free:'프리 플랜', bff:'베프 플랜', eternal:'영원한 친구 플랜' }[plan] || '프리';
+    const planClass = { free:'plan-free', bff:'plan-bff', eternal:'plan-eternal' }[plan] || 'plan-free';
+    return `<div class="user-card" id="uc-${uid}">
+      <div class="user-card-head">
+        <div>
+          <div class="user-name">${u.name || '이름없음'} <span style="font-size:13px;color:var(--muted);font-weight:400">(${u.age || '-'}세)</span></div>
+          <div class="user-id">@${uid}</div>
+        </div>
+        <span class="plan-badge ${planClass}">${planLabel}</span>
+      </div>
+      <div class="user-meta">
+        <span>📅 가입: ${u.joinDate || '-'}</span>
+        <span>💬 이번주 ${weekly}회</span>
+        <span>🔥 연속 ${streak}일</span>
+        <span>📊 이번달 ${monthly.chat||0}회</span>
+        ${expiry ? `<span>⏰ 만료: ${expiry}</span>` : ''}
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">플랜 변경</div>
+      <div class="plan-change">
+        <button class="plan-btn ${plan==='free'?'active-plan':''}" onclick="changePlan('${uid}','free',this)">🆓 프리</button>
+        <button class="plan-btn ${plan==='bff'?'active-plan':''}" onclick="changePlan('${uid}','bff',this)">💜 베프</button>
+        <button class="plan-btn ${plan==='eternal'?'active-plan':''}" onclick="changePlan('${uid}','eternal',this)">🌟 영원한 친구</button>
+        <div class="expiry-wrap">
+          <span style="font-size:11px;color:var(--muted)">만료일</span>
+          <input class="expiry-inp" type="date" id="expiry-${uid}" value="${expiry}">
+        </div>
+        <button class="save-btn" onclick="saveUserPlan('${uid}')">💾 저장</button>
+        <span class="saved-msg" id="saved-${uid}">✅ 저장됨!</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function changePlan(uid, plan, btn) {
+  const card = document.getElementById(`uc-${uid}`);
+  card.querySelectorAll('.plan-btn').forEach(b => b.classList.remove('active-plan'));
+  btn.classList.add('active-plan');
+  // 만료일 자동 설정 (유료 플랜이면 오늘+1달)
+  if (plan !== 'free') {
+    const d = new Date(); d.setMonth(d.getMonth()+1);
+    const v = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const ei = document.getElementById(`expiry-${uid}`);
+    if (ei && !ei.value) ei.value = v;
+  }
+}
+
+function saveUserPlan(uid) {
+  const card = document.getElementById(`uc-${uid}`);
+  const activeBtn = card.querySelector('.plan-btn.active-plan');
+  if (!activeBtn) return;
+  const planMap = { '🆓 프리':'free', '💜 베프':'bff', '🌟 영원한 친구':'eternal' };
+  const plan = planMap[activeBtn.textContent.trim()] || 'free';
+  const expiry = document.getElementById(`expiry-${uid}`).value;
+  savePlan(uid, plan, expiry);
+  const msg = document.getElementById(`saved-${uid}`);
+  msg.style.display = 'inline';
+  setTimeout(() => msg.style.display = 'none', 2500);
+  showToast(`✅ ${uid} 플랜 저장 완료!`);
+}
+
+// ── 게시판 관리 ─────────────────────────────────
+function filterBoard(f) {
+  boardFilter = f;
+  document.getElementById('bf-all').style.background = f==='all' ? 'var(--primary)' : 'var(--surface)';
+  document.getElementById('bf-all').style.color = f==='all' ? 'white' : 'var(--muted)';
+  document.getElementById('bf-noreply').style.background = f==='noreply' ? 'var(--warn)' : 'var(--surface)';
+  document.getElementById('bf-noreply').style.color = f==='noreply' ? 'white' : 'var(--muted)';
+  renderBoard();
+}
+
+function renderBoard() {
+  const posts = getBoardPosts();
+  const el = document.getElementById('board-list');
+  const catClass = { payment:'cat-payment', feature:'cat-feature', edu:'cat-edu', etc:'cat-etc' };
+  const catLabel = { payment:'💰 결제 문의', feature:'💡 기능 건의', edu:'📚 교육 상담', etc:'💬 기타' };
+
+  let filtered = [...posts].reverse();
+  if (boardFilter === 'noreply') filtered = filtered.filter(p => !p.replies || p.replies.length === 0);
+
+  if (filtered.length === 0) { el.innerHTML = '<div class="empty">게시글이 없어요.</div>'; return; }
+
+  el.innerHTML = filtered.map(p => {
+    const hasReply = p.replies && p.replies.length > 0;
+    return `<div class="board-item ${hasReply?'has-reply':'no-reply'}">
+      <div class="board-head">
+        <span class="board-cat ${catClass[p.cat]||'cat-etc'}">${catLabel[p.cat]||'기타'}</span>
+        ${hasReply ? '<span class="replied-badge">✅ 답변 완료</span>' : '<span class="no-reply-badge">⏳ 미답변</span>'}
+        <span style="font-size:11px;color:var(--muted)">${p.visibility==='public'?'🌐 전체':'🔒 나만'}</span>
+      </div>
+      <div class="board-title">${p.title}</div>
+      <div class="board-meta">
+        <span>✍️ ${p.authorName}</span>
+        <span>🔑 ${p.authorId}</span>
+        <span>📅 ${p.date}</span>
+      </div>
+      <div class="board-body">${p.body.replace(/\n/g,'<br>')}</div>
+      ${hasReply ? `<div class="reply-section">${p.replies.map(r=>`
+        <div class="reply-item">
+          <div class="reply-meta">🌙 루나 관리자 · ${r.date}</div>
+          <div class="reply-body">${r.body.replace(/\n/g,'<br>')}</div>
+        </div>`).join('')}</div>` : ''}
+      <div class="reply-form">
+        <textarea class="reply-inp" id="reply-inp-${p.id}" placeholder="답글을 입력해 주세요... (계좌이체 확인 후: &quot;입금 확인했어요! 베프 플랜이 활성화됐어요 🎉&quot;)"></textarea>
+        <button class="reply-btn" onclick="submitReply(${p.id})">✏️ 답글 등록</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function submitReply(postId) {
+  const inp = document.getElementById(`reply-inp-${postId}`);
+  const body = inp.value.trim();
+  if (!body) { showToast('❌ 답글 내용을 입력해 주세요.'); return; }
+
+  const posts = getBoardPosts();
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()}`;
+  post.replies = post.replies || [];
+  post.replies.push({ body, date: dateStr });
+  localStorage.setItem(LS_BOARD, JSON.stringify(posts));
+
+  inp.value = '';
+  showToast('✅ 답글이 등록됐어요! 사용자에게 알림이 전송돼요.');
+  renderBoard();
+  loadDashboard();
+}
+
+// ── 토스트 ──────────────────────────────────────
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+// 엔터키 로그인
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !isLoggedIn) doAdminLogin();
+});
+</script>
+</body>
+</html>
