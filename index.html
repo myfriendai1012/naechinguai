@@ -1,8 +1,13 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="내친구AI">
 <title>내친구AI — 평생 AI 친구</title>
 <meta property="og:title" content="내친구AI — 평생 AI 친구">
 <meta property="og:description" content="루나와 함께하는 나만의 AI 친구. 감정 공감, 일정 관리, 책 추천까지!">
@@ -1342,16 +1347,16 @@
 
   async function kvSet(key, value) {
     try {
-      // localStorage에도 동시 저장 (오프라인 대비)
       localStorage.setItem(key, JSON.stringify(value));
-      await fetch(`${KV_BASE}?key=${encodeURIComponent(key)}`, {
+      const res = await fetch(`/api/kv?key=${encodeURIComponent(key)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(value)
       });
+      if (!res.ok) console.log('KV 저장 응답 오류:', res.status);
     } catch (e) {
-      // KV 실패해도 localStorage에는 저장됨
       localStorage.setItem(key, JSON.stringify(value));
+      console.log('KV 저장 실패, localStorage만 사용:', e.message);
     }
   }
 
@@ -1889,7 +1894,7 @@ ${langInstr}
   ═══════════════════════════════ */
   function toggleChip(el) { el.classList.toggle('selected'); }
 
-  function startChat() {
+  async function startChat() {
     const name        = document.getElementById('prof-name').value.trim();
     const age         = document.getElementById('prof-age').value;
     const gender      = document.getElementById('prof-gender').value;
@@ -1905,14 +1910,33 @@ ${langInstr}
     if (!userId||userId.length<4) { hl('prof-id'); showSignupError('아이디는 4자 이상이어야 해요.'); return; }
     if (!userPw||userPw.length<4) { hl('prof-pw'); showSignupError('비밀번호는 4자 이상이어야 해요.'); return; }
 
-    const stored = JSON.parse(localStorage.getItem(LS_USERS) || '{}');
+    // localStorage + KV 둘 다 확인해서 중복 체크
+    let stored = JSON.parse(localStorage.getItem(LS_USERS) || '{}');
+    const kvStored = await kvGet(LS_USERS);
+    if (kvStored) {
+      stored = { ...kvStored, ...stored }; // 둘 다 합치기
+      localStorage.setItem(LS_USERS, JSON.stringify(stored));
+    }
     if (stored[userId]) { hl('prof-id'); showSignupError('이미 사용 중인 아이디예요.'); return; }
 
     userProfile = { name, age, gender, personality, interests, message, userId };
     currentUserId = userId;
-    stored[userId] = { name, age, gender, personality, interests, message, pw: userPw };
+    stored[userId] = { name, age, gender, personality, interests, message, pw: userPw, joinDate: new Date().toLocaleDateString('ko-KR') };
+
+    // localStorage 먼저 저장
     localStorage.setItem(LS_USERS, JSON.stringify(stored));
-    kvSet(LS_USERS, stored); // KV에도 저장
+
+    // KV에 저장 (await으로 완료 확인)
+    try {
+      await fetch(`/api/kv?key=${encodeURIComponent(LS_USERS)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(stored)
+      });
+    } catch(e) {
+      console.log('KV 저장 실패, localStorage만 사용');
+    }
+
     chatHistory = [];
     memoryNotes = [];
     bondXP = 0; bondLevel = 1;
@@ -1932,7 +1956,7 @@ ${langInstr}
     updateMonthlyStats();
     setTimeout(() => {
       navigate('chat');
-      setTimeout(() => runWelcomeTour(name), 500); // 웰컴 투어 실행
+      setTimeout(() => runWelcomeTour(name), 500);
     }, 1400);
   }
 
