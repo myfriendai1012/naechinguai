@@ -603,147 +603,247 @@
 
     <!-- ── HOME ── -->
     <div class="page active" id="page-home">
-      <div class="page-title" id="home-greeting">안녕하세요! 👋</div>
-      <div class="page-sub" id="home-sub">루나와 함께할 친구를 소개해 주세요</div>
 
-      <!-- Tabs -->
-      <div class="home-tabs" id="home-tabs">
-        <button class="home-tab" id="tab-login" onclick="switchTab('login')">🔑 재방문 로그인</button>
-        <button class="home-tab active" id="tab-signup" onclick="switchTab('signup')">🌙 처음 시작하기</button>
-      </div>
+      <!-- 비로그인: 랜딩 페이지 -->
+      <div id="home-landing">
 
-      <!-- ── 로그인 패널 ── -->
-      <div class="home-tab-panel" id="panel-login">
-        <div class="login-card">
-          <div class="login-hero">
-            <div class="login-orb">🌙</div>
-            <div class="login-title">다시 만났어요!</div>
-            <div class="login-sub">아이디와 비밀번호를 입력하면 루나가 기다려요</div>
-          </div>
-
-          <div id="login-error" class="login-error">
-            ❌ 아이디 또는 비밀번호가 맞지 않아요. 다시 확인해 주세요.
-          </div>
-
-          <div class="login-field">
-            <label class="login-label">아이디</label>
-            <input class="login-input" id="login-id" type="text" placeholder="가입할 때 만든 아이디" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
-          </div>
-          <div class="login-field">
-            <label class="login-label">비밀번호</label>
-            <input class="login-input" id="login-pw" type="password" placeholder="비밀번호 입력" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-          </div>
-
-          <button class="login-btn" onclick="doLogin()">
-            💬 루나와 대화하러 가기
-          </button>
-
-          <div style="text-align:center;margin-top:10px">
-            <button onclick="showForgotPw()" style="background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline">🔑 비밀번호를 잊어버렸어요</button>
-          </div>
-
-          <div class="login-divider">
-            <div class="login-divider-line"></div>
-            <div class="login-divider-text">처음이에요?</div>
-            <div class="login-divider-line"></div>
-          </div>
-          <div class="login-hint">
-            아직 루나 친구가 없다면 <b onclick="switchTab('signup')">처음 시작하기</b> 탭에서 프로필을 만들어 보세요!
-          </div>
-        </div>
-      </div>
-
-      <!-- ── 회원가입(프로필) 패널 ── -->
-      <div class="home-tab-panel active" id="panel-signup">
-      <!-- Profile Form -->
-      <div class="profile-card">
-        <div class="profile-card-title">🧒 내 프로필</div>
-        <div class="profile-card-sub">입력한 정보를 바탕으로 루나가 나만의 친구가 돼요</div>
-
-        <div id="profile-saved-msg" class="profile-saved">
-          ✅ 프로필이 저장됐어요! 루나가 기다리고 있어요 🌙
-        </div>
-
-        <div class="profile-grid">
-          <div class="profile-field">
-            <label class="profile-label">이름 (닉네임)</label>
-            <input class="profile-input" id="prof-name" type="text" placeholder="예: 민준, 지우, 하늘이" maxlength="10">
-          </div>
-          <div class="profile-field">
-            <label class="profile-label">나이</label>
-            <select class="profile-select" id="prof-age">
-              <option value="">선택해 주세요</option>
-              <option value="8">8세 (초등 2학년)</option>
-              <option value="9">9세 (초등 3학년)</option>
-              <option value="10">10세 (초등 4학년)</option>
-              <option value="11">11세 (초등 5학년)</option>
-              <option value="12">12세 (초등 6학년)</option>
-              <option value="13">13세 (중등 1학년)</option>
-              <option value="14">14세 (중등 2학년)</option>
-              <option value="15">15세 (중등 3학년)</option>
-            </select>
-          </div>
-          <div class="profile-field">
-            <label class="profile-label">성별</label>
-            <select class="profile-select" id="prof-gender">
-              <option value="">선택해 주세요</option>
-              <option value="boy">남자아이</option>
-              <option value="girl">여자아이</option>
-              <option value="other">말하고 싶지 않아요</option>
-            </select>
-          </div>
-          <div class="profile-field">
-            <label class="profile-label">성격</label>
-            <select class="profile-select" id="prof-personality">
-              <option value="">선택해 주세요</option>
-              <option value="active">활발하고 에너지 넘침</option>
-              <option value="calm">조용하고 차분함</option>
-              <option value="curious">호기심이 많음</option>
-              <option value="creative">창의적이고 상상력이 풍부</option>
-              <option value="kind">따뜻하고 배려심이 많음</option>
-            </select>
-          </div>
-          <div class="profile-field full">
-            <label class="profile-label">관심사 (여러 개 선택 가능)</label>
-            <div class="interest-chips" id="interest-chips">
-              <div class="chip" onclick="toggleChip(this)" data-val="math">수학</div>
-              <div class="chip" onclick="toggleChip(this)" data-val="science">과학</div>
-              <div class="chip" onclick="toggleChip(this)" data-val="reading">독서</div>
-              <div class="chip" onclick="toggleChip(this)" data-val="art">미술·그림</div>
-              <div class="chip" onclick="toggleChip(this)" data-val="music">음악</div>
-              <div class="chip" onclick="toggleChip(this)" data-val="sports">운동·스포츠</div>
-              <div class="chip" onclick="toggleChip(this)" data-val="games">게임</div>
-              <div class="chip" onclick="toggleChip(this)" data-val="cooking">요리</div>
-              <div class="chip" onclick="toggleChip(this)" data-val="space">우주·천문</div>
-              <div class="chip" onclick="toggleChip(this)" data-val="animals">동물·식물</div>
-              <div class="chip" onclick="toggleChip(this)" data-val="history">역사</div>
-              <div class="chip" onclick="toggleChip(this)" data-val="coding">코딩</div>
+        <!-- 헤더 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:26px">🌙</span>
+            <div>
+              <div style="font-size:17px;font-weight:900;color:var(--primary)">내친구AI</div>
+              <div style="font-size:10px;color:var(--text-muted)">루나와 함께하는 평생 AI 친구</div>
             </div>
           </div>
-          <div class="profile-field full">
-            <label class="profile-label">루나에게 한마디 (선택)</label>
-            <input class="profile-input" id="prof-message" type="text" placeholder="예: 나는 수학을 좋아하고 강아지를 키워요!" maxlength="50">
-          </div>
-          <div class="profile-field">
-            <label class="profile-label">아이디 만들기 <span style="color:var(--danger)">*</span></label>
-            <input class="profile-input" id="prof-id" type="text" placeholder="영문+숫자, 4~12자" maxlength="12" autocomplete="username">
-          </div>
-          <div class="profile-field">
-            <label class="profile-label">비밀번호 만들기 <span style="color:var(--danger)">*</span></label>
-            <input class="profile-input" id="prof-pw" type="password" placeholder="4자 이상" maxlength="20" autocomplete="new-password">
+          <div style="display:flex;gap:7px">
+            <button onclick="showLogin()" style="padding:7px 14px;border-radius:20px;border:1.5px solid var(--primary);background:transparent;color:var(--primary);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer">로그인</button>
+            <button onclick="showSignup()" style="padding:7px 14px;border-radius:20px;border:none;background:var(--primary);color:white;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer">회원가입</button>
           </div>
         </div>
 
-        <div style="background:#FFF3DC;border:1px solid #FFD180;border-radius:10px;padding:11px 14px;margin-bottom:12px;font-size:12px;color:#7a4800;line-height:1.6">
-          🌙 <strong>루나는 현실 친구를 대체하지 않아요.</strong><br>
-          루나는 감정을 나누고 함께 성장하는 AI 친구예요. 현실에서도 소중한 친구·가족과 함께하는 시간을 잊지 마세요 💛
+        <!-- 히어로 -->
+        <div style="background:linear-gradient(135deg,var(--primary),#a29bfe);border-radius:16px;padding:26px 20px;color:white;text-align:center;margin-bottom:18px">
+          <div style="font-size:48px;margin-bottom:10px">🌙</div>
+          <div style="font-size:22px;font-weight:900;margin-bottom:8px">루나, 평생 AI 친구</div>
+          <div style="font-size:13px;opacity:.9;line-height:1.7;margin-bottom:18px">초등학생 때 만나 함께 성장하는 AI 친구<br>감정을 이해하고, 일정을 기억하고, 책을 추천해요</div>
+          <button onclick="showSignup()" style="padding:11px 26px;border-radius:24px;border:none;background:white;color:var(--primary);font-size:14px;font-weight:900;font-family:inherit;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.15)">
+            🌙 무료로 시작하기 →
+          </button>
         </div>
 
-        <button class="start-btn" onclick="startChat()">
-          🌙 루나와 이야기 시작하기
-        </button>
-      </div>
-      </div><!-- /panel-signup -->
+        <!-- 핵심 기능 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center">
+            <div style="font-size:24px;margin-bottom:5px">💜</div>
+            <div style="font-size:11px;font-weight:800;color:var(--text);margin-bottom:3px">감정 공감</div>
+            <div style="font-size:9px;color:var(--text-muted);line-height:1.4">오늘 기분 어때? 루나가 먼저 물어봐요</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center">
+            <div style="font-size:24px;margin-bottom:5px">🧠</div>
+            <div style="font-size:11px;font-weight:800;color:var(--text);margin-bottom:3px">대화 기억</div>
+            <div style="font-size:9px;color:var(--text-muted);line-height:1.4">이전 대화를 기억하고 자연스럽게 이어가요</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center">
+            <div style="font-size:24px;margin-bottom:5px">📚</div>
+            <div style="font-size:11px;font-weight:800;color:var(--text);margin-bottom:3px">책 추천</div>
+            <div style="font-size:9px;color:var(--text-muted);line-height:1.4">관심사에 맞는 책을 이유와 함께 추천해요</div>
+          </div>
+        </div>
+
+        <!-- 장점 -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:12px">✨ 루나가 특별한 이유</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:flex-start;gap:10px">
+              <span style="font-size:18px;flex-shrink:0">🤝</span>
+              <div><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">관계가 성장해요</div><div style="font-size:11px;color:var(--text-muted);line-height:1.5">처음엔 낯선 사이지만 대화할수록 친해져요. Lv.1 낯선 친구 → Lv.6 영원한 친구까지!</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px">
+              <span style="font-size:18px;flex-shrink:0">📅</span>
+              <div><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">일정을 먼저 알려줘요</div><div style="font-size:11px;color:var(--text-muted);line-height:1.5">시험 전날 루나가 먼저 "내일 수학 시험이잖아, 준비됐어?" 하고 물어봐요.</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px">
+              <span style="font-size:18px;flex-shrink:0">🔒</span>
+              <div><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">안전하게 설계됐어요</div><div style="font-size:11px;color:var(--text-muted);line-height:1.5">위기 상황 감지 시 보호자 즉시 알림. 아이들을 위한 안전한 AI예요.</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px">
+              <span style="font-size:18px;flex-shrink:0">💰</span>
+              <div><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">무료로 시작해요</div><div style="font-size:11px;color:var(--text-muted);line-height:1.5">주간 140회 대화가 완전 무료. 더 많이 원하면 베프 플랜 ₩9,900/월.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 플랜 미리보기 -->
+        <div style="background:var(--primary-light);border-radius:12px;padding:14px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:800;color:var(--primary);margin-bottom:10px">💎 플랜 안내</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:white;border-radius:8px">
+              <div style="font-size:12px;font-weight:700;color:var(--text)">🆓 프리 플랜</div>
+              <div style="font-size:12px;color:var(--success);font-weight:700">무료 · 주간 140회</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:white;border-radius:8px;border:1.5px solid var(--primary)">
+              <div style="font-size:12px;font-weight:700;color:var(--primary)">💜 베프 플랜 ⭐</div>
+              <div style="font-size:12px;color:var(--primary);font-weight:700">₩9,900 / 월</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:white;border-radius:8px">
+              <div style="font-size:12px;font-weight:700;color:var(--text)">🌟 영원한 친구 플랜</div>
+              <div style="font-size:12px;color:var(--text-muted);font-weight:700">₩16,500 / 월</div>
+            </div>
+          </div>
+        </div>
+
+        </div>
+
+      </div><!-- /home-landing -->
+
+      <!-- 로그인/회원가입 섹션 -->
+      <div id="home-auth" style="display:none">
+
+        <div style="display:flex;align-items:center;margin-bottom:16px">
+          <button onclick="showLanding()" style="background:none;border:none;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px">← 돌아가기</button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="home-tabs" id="home-tabs">
+          <button class="home-tab" id="tab-login" onclick="switchTab('login')">🔑 로그인</button>
+          <button class="home-tab active" id="tab-signup" onclick="switchTab('signup')">🌙 회원가입</button>
+        </div>
+
+        <!-- ── 로그인 패널 ── -->
+        <div class="home-tab-panel" id="panel-login">
+          <div class="login-card">
+            <div class="login-hero">
+              <div class="login-orb">🌙</div>
+              <div class="login-title">다시 만났어요!</div>
+              <div class="login-sub">아이디와 비밀번호를 입력하면 루나가 기다려요</div>
+            </div>
+
+            <div id="login-error" class="login-error">
+              ❌ 아이디 또는 비밀번호가 맞지 않아요. 다시 확인해 주세요.
+            </div>
+
+            <div class="login-field">
+              <label class="login-label">아이디</label>
+              <input class="login-input" id="login-id" type="text" placeholder="가입할 때 만든 아이디" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+            </div>
+            <div class="login-field">
+              <label class="login-label">비밀번호</label>
+              <input class="login-input" id="login-pw" type="password" placeholder="비밀번호 입력" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+            </div>
+
+            <button class="login-btn" onclick="doLogin()">
+              💬 루나와 대화하러 가기
+            </button>
+
+            <div style="text-align:center;margin-top:10px">
+              <button onclick="showForgotPw()" style="background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline">🔑 비밀번호를 잊어버렸어요</button>
+            </div>
+
+            <div class="login-divider">
+              <div class="login-divider-line"></div>
+              <div class="login-divider-text">처음이에요?</div>
+              <div class="login-divider-line"></div>
+            </div>
+            <div class="login-hint">
+              아직 루나 친구가 없다면 <b onclick="switchTab('signup')">회원가입</b> 탭에서 프로필을 만들어 보세요!
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 회원가입(프로필) 패널 ── -->
+        <div class="home-tab-panel active" id="panel-signup">
+        <!-- Profile Form -->
+        <div class="profile-card">
+          <div class="profile-card-title">🧒 내 프로필</div>
+          <div class="profile-card-sub">입력한 정보를 바탕으로 루나가 나만의 친구가 돼요</div>
+
+          <div id="profile-saved-msg" class="profile-saved">
+            ✅ 프로필이 저장됐어요! 루나가 기다리고 있어요 🌙
+          </div>
+
+          <div class="profile-grid">
+            <div class="profile-field">
+              <label class="profile-label">이름 (닉네임)</label>
+              <input class="profile-input" id="prof-name" type="text" placeholder="예: 민준, 지우, 하늘이" maxlength="10">
+            </div>
+            <div class="profile-field">
+              <label class="profile-label">나이</label>
+              <select class="profile-select" id="prof-age">
+                <option value="">선택해 주세요</option>
+                <option value="8">8세 (초등 2학년)</option>
+                <option value="9">9세 (초등 3학년)</option>
+                <option value="10">10세 (초등 4학년)</option>
+                <option value="11">11세 (초등 5학년)</option>
+                <option value="12">12세 (초등 6학년)</option>
+                <option value="13">13세 (중등 1학년)</option>
+                <option value="14">14세 (중등 2학년)</option>
+                <option value="15">15세 (중등 3학년)</option>
+              </select>
+            </div>
+            <div class="profile-field">
+              <label class="profile-label">성별</label>
+              <select class="profile-select" id="prof-gender">
+                <option value="">선택해 주세요</option>
+                <option value="boy">남자아이</option>
+                <option value="girl">여자아이</option>
+                <option value="other">말하고 싶지 않아요</option>
+              </select>
+            </div>
+            <div class="profile-field">
+              <label class="profile-label">성격</label>
+              <select class="profile-select" id="prof-personality">
+                <option value="">선택해 주세요</option>
+                <option value="active">활발하고 에너지 넘침</option>
+                <option value="calm">조용하고 차분함</option>
+                <option value="curious">호기심이 많음</option>
+                <option value="creative">창의적이고 상상력이 풍부</option>
+                <option value="kind">따뜻하고 배려심이 많음</option>
+              </select>
+            </div>
+            <div class="profile-field full">
+              <label class="profile-label">관심사 (여러 개 선택 가능)</label>
+              <div class="interest-chips" id="interest-chips">
+                <div class="chip" onclick="toggleChip(this)" data-val="math">수학</div>
+                <div class="chip" onclick="toggleChip(this)" data-val="science">과학</div>
+                <div class="chip" onclick="toggleChip(this)" data-val="reading">독서</div>
+                <div class="chip" onclick="toggleChip(this)" data-val="art">미술·그림</div>
+                <div class="chip" onclick="toggleChip(this)" data-val="music">음악</div>
+                <div class="chip" onclick="toggleChip(this)" data-val="sports">운동·스포츠</div>
+                <div class="chip" onclick="toggleChip(this)" data-val="games">게임</div>
+                <div class="chip" onclick="toggleChip(this)" data-val="cooking">요리</div>
+                <div class="chip" onclick="toggleChip(this)" data-val="space">우주·천문</div>
+                <div class="chip" onclick="toggleChip(this)" data-val="animals">동물·식물</div>
+                <div class="chip" onclick="toggleChip(this)" data-val="history">역사</div>
+                <div class="chip" onclick="toggleChip(this)" data-val="coding">코딩</div>
+              </div>
+            </div>
+            <div class="profile-field full">
+              <label class="profile-label">루나에게 한마디 (선택)</label>
+              <input class="profile-input" id="prof-message" type="text" placeholder="예: 나는 수학을 좋아하고 강아지를 키워요!" maxlength="50">
+            </div>
+            <div class="profile-field">
+              <label class="profile-label">아이디 만들기 <span style="color:var(--danger)">*</span></label>
+              <input class="profile-input" id="prof-id" type="text" placeholder="영문+숫자, 4~12자" maxlength="12" autocomplete="username">
+            </div>
+            <div class="profile-field">
+              <label class="profile-label">비밀번호 만들기 <span style="color:var(--danger)">*</span></label>
+              <input class="profile-input" id="prof-pw" type="password" placeholder="4자 이상" maxlength="20" autocomplete="new-password">
+            </div>
+          </div>
+
+          <div style="background:#FFF3DC;border:1px solid #FFD180;border-radius:10px;padding:11px 14px;margin-bottom:12px;font-size:12px;color:#7a4800;line-height:1.6">
+            🌙 <strong>루나는 현실 친구를 대체하지 않아요.</strong><br>
+            루나는 감정을 나누고 함께 성장하는 AI 친구예요. 현실에서도 소중한 친구·가족과 함께하는 시간을 잊지 마세요 💛
+          </div>
+
+          <button class="start-btn" onclick="startChat()">
+            🌙 루나와 이야기 시작하기
+          </button>
+        </div>
+        </div><!-- /panel-signup -->
+
+      </div><!-- /home-auth -->
 
       <!-- 프로필 저장 후 표시 -->
       <div id="home-after-profile" style="display:none">
@@ -948,7 +1048,7 @@
     <!-- ── BOOKS ── -->
     <div class="page" id="page-books">
       <div class="page-title">📚 루나의 책 추천</div>
-      <div class="page-sub">민준이의 관심사와 대화 내용을 바탕으로 골랐어요</div>
+      <div class="page-sub" id="book-page-sub">관심사와 대화 내용을 바탕으로 골랐어요</div>
 
       <div class="books-filter">
         <button class="filter-btn active" onclick="filterBooks(this,'all')">전체</button>
@@ -1296,10 +1396,17 @@
     const errEl = document.getElementById('login-error');
     if (!id || !pw) { errEl.textContent = '❌ 아이디와 비밀번호를 모두 입력해 주세요.'; errEl.classList.add('show'); return; }
 
-    // KV에서 먼저 불러오기 (없으면 localStorage 사용)
-    let stored = await kvGet(LS_USERS) || JSON.parse(localStorage.getItem(LS_USERS) || '{}');
-    // KV에서 가져온 데이터를 localStorage에도 동기화
-    if (stored && Object.keys(stored).length > 0) localStorage.setItem(LS_USERS, JSON.stringify(stored));
+    // localStorage 먼저 확인 (기존 계정)
+    let stored = JSON.parse(localStorage.getItem(LS_USERS) || '{}');
+
+    // localStorage에 없으면 KV에서 불러오기
+    if (!stored[id]) {
+      const kvStored = await kvGet(LS_USERS);
+      if (kvStored) {
+        stored = kvStored;
+        localStorage.setItem(LS_USERS, JSON.stringify(stored)); // 동기화
+      }
+    }
 
     if (!stored[id] || stored[id].pw !== pw) {
       errEl.textContent = '❌ 아이디 또는 비밀번호가 맞지 않아요.';
@@ -1645,17 +1752,51 @@ ${langInstr}
   function speak(text) {
     if (!ttsEnabled || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(text);
+
+    // 이모티콘 제거
+    const cleanText = text
+      .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')
+      .replace(/[\u{2600}-\u{27FF}]/gu, '')
+      .replace(/[\u{FE00}-\u{FEFF}]/gu, '')
+      .replace(/[🌙💜📅📚🎨💎🔥⭐🎉😊😄🌈🔒🔑📋💡🏠💬🎤🔊]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (!cleanText) return;
+
+    const utt = new SpeechSynthesisUtterance(cleanText);
     const isEng = isEnglish(text);
     utt.lang = isEng ? 'en-US' : 'ko-KR';
     utt.rate = ttsRate;
-    utt.pitch = 1.1;
 
-    // 여성 목소리 선택
+    // 나이·성별에 맞게 목소리 톤 조절
+    const age    = parseInt(userProfile?.age  || 12);
+    const gender = userProfile?.gender || 'girl';
+
+    if (gender === 'boy') {
+      // 남자아이: 낮고 밝은 톤
+      utt.pitch = age <= 10 ? 1.3 : age <= 12 ? 1.1 : 0.95;
+      utt.rate  = ttsRate * (age <= 10 ? 1.05 : 1.0);
+    } else {
+      // 여자아이 / 기타: 높고 밝은 톤
+      utt.pitch = age <= 10 ? 1.6 : age <= 12 ? 1.4 : 1.2;
+      utt.rate  = ttsRate * (age <= 10 ? 1.05 : 1.0);
+    }
+
+    // 성별에 맞는 목소리 선택
     const voices = speechSynthesis.getVoices();
-    const pref = voices.find(v => v.lang === utt.lang && v.name.toLowerCase().includes('female'))
-               || voices.find(v => v.lang === utt.lang && (v.name.includes('여') || v.name.includes('Yuna') || v.name.includes('Sora')))
-               || voices.find(v => v.lang.startsWith(isEng ? 'en' : 'ko'));
+    let pref;
+    if (gender === 'boy') {
+      // 남성 목소리 우선
+      pref = voices.find(v => v.lang === utt.lang && v.name.toLowerCase().includes('male') && !v.name.toLowerCase().includes('female'))
+          || voices.find(v => v.lang === utt.lang && (v.name.includes('남') || v.name.includes('Junho') || v.name.includes('Hyunsu')))
+          || voices.find(v => v.lang.startsWith(isEng ? 'en' : 'ko'));
+    } else {
+      // 여성 목소리 우선
+      pref = voices.find(v => v.lang === utt.lang && v.name.toLowerCase().includes('female'))
+          || voices.find(v => v.lang === utt.lang && (v.name.includes('여') || v.name.includes('Yuna') || v.name.includes('Sora') || v.name.includes('Jisoo')))
+          || voices.find(v => v.lang.startsWith(isEng ? 'en' : 'ko'));
+    }
     if (pref) utt.voice = pref;
 
     utt.onstart = () => { isSpeaking = true; document.getElementById('luna-avatar').textContent = '🔊'; };
@@ -1722,18 +1863,25 @@ ${langInstr}
      프로필 적용 (공통)
   ═══════════════════════════════ */
   function applyProfile(prof) {
-    document.getElementById('home-greeting').textContent = `안녕하세요, ${prof.name} 👋`;
-    document.getElementById('home-sub').textContent = `루나가 ${prof.name}(을)를 기다리고 있어요!`;
-    document.querySelector('.fm-name').textContent = prof.name;
-    document.getElementById('home-tabs').style.display = 'none';
-    document.getElementById('panel-login').classList.remove('active');
-    document.getElementById('panel-signup').classList.remove('active');
+    const name = prof.name || '친구';
+    document.getElementById('home-greeting').textContent = `안녕하세요, ${name} 👋`;
+    document.getElementById('home-sub').textContent = `루나가 ${name}를 기다리고 있어요!`;
+    document.querySelector('.fm-name').textContent = name;
+
+    // 랜딩·인증 숨기고 통계 화면 표시
+    document.getElementById('home-landing').style.display = 'none';
+    document.getElementById('home-auth').style.display = 'none';
     document.getElementById('home-after-profile').style.display = 'block';
+
     const interestText = prof.interests && prof.interests.length > 0
       ? `"${prof.interests[0]} 좋아한다고 했지? 나도 궁금해!"`
-      : `"${prof.name}아, 안녕! 반가워 🌙"`;
+      : `"${name}아, 안녕! 반가워 🌙"`;
     if (document.getElementById('notif-text'))
       document.getElementById('notif-text').textContent = `루나가 먼저 말을 걸었어요! ${interestText}`;
+
+    // 책 추천 페이지 부제목 업데이트
+    const bookSub = document.getElementById('book-page-sub');
+    if (bookSub) bookSub.textContent = `${name}의 관심사와 대화 내용을 바탕으로 골랐어요`;
   }
 
   /* ═══════════════════════════════
@@ -2574,6 +2722,31 @@ ${langInstr}
   }
 
   /* ═══════════════════════════════
+     랜딩 페이지 ↔ 로그인/회원가입
+  ═══════════════════════════════ */
+  function showLanding() {
+    document.getElementById('home-landing').style.display = 'block';
+    document.getElementById('home-auth').style.display = 'none';
+    document.getElementById('home-after-profile').style.display = 'none';
+  }
+
+  function showLogin() {
+    document.getElementById('home-landing').style.display = 'none';
+    document.getElementById('home-auth').style.display = 'block';
+    document.getElementById('home-after-profile').style.display = 'none';
+    switchTab('login');
+    navigate('home');
+  }
+
+  function showSignup() {
+    document.getElementById('home-landing').style.display = 'none';
+    document.getElementById('home-auth').style.display = 'block';
+    document.getElementById('home-after-profile').style.display = 'none';
+    switchTab('signup');
+    navigate('home');
+  }
+
+  /* ═══════════════════════════════
      비밀번호 찾기
   ═══════════════════════════════ */
   function showForgotPw() {
@@ -3079,5 +3252,48 @@ ${langInstr}
   </div>
 </div>
 
-</body>
-</html>
+<!-- 스플래시 스크린 -->
+<div id="splash-screen" style="
+  position:fixed;inset:0;z-index:99999;
+  background:linear-gradient(135deg,#6C5CE7,#a29bfe);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity 0.6s ease;
+">
+  <div style="text-align:center;color:white">
+    <div style="font-size:72px;margin-bottom:16px;animation:splashBounce 0.8s ease">🌙</div>
+    <div style="font-size:32px;font-weight:900;margin-bottom:8px;letter-spacing:-0.5px">내친구AI</div>
+    <div style="font-size:15px;opacity:.85;margin-bottom:40px">루나와 함께하는 평생 AI 친구</div>
+    <div style="display:flex;justify-content:center;gap:6px">
+      <div style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);animation:splashDot 1.2s infinite 0s"></div>
+      <div style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);animation:splashDot 1.2s infinite 0.2s"></div>
+      <div style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);animation:splashDot 1.2s infinite 0.4s"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes splashBounce {
+  0%   { transform:scale(0.5);opacity:0; }
+  70%  { transform:scale(1.1); }
+  100% { transform:scale(1);opacity:1; }
+}
+@keyframes splashDot {
+  0%,80%,100% { transform:scale(0.6);opacity:.4; }
+  40%          { transform:scale(1.2);opacity:1; }
+}
+</style>
+
+<script>
+// 스플래시 스크린 2초 후 자동으로 사라짐
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
+      splash.style.opacity = '0';
+      setTimeout(() => splash.remove(), 600);
+    }
+  }, 2000);
+});
+</script>
+
+
