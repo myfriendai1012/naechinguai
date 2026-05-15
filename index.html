@@ -36,7 +36,11 @@
     --shadow-card: 0 2px 12px rgba(108,92,231,0.06);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'Nunito', 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+  body {
+    overscroll-behavior: none; /* 스와이프로 앱 밖 나가는 것 방지 */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  } font-family: 'Nunito', 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
   /* ── Layout ── */
   .app-shell { display: flex; min-height: 100vh; }
@@ -2919,6 +2923,11 @@ ${langInstr}
         mobileNav.style.display = '';
       }
     }
+
+    // history API로 뒤로가기 처리 (로그아웃 방지)
+    if (currentUserId) {
+      history.pushState({ page }, '', '#' + page);
+    }
   }
 
   function toggleMobileMore() {
@@ -3171,6 +3180,26 @@ ${langInstr}
       card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
     });
   }
+
+  // 뒤로가기(스와이프 포함) 처리 — 앱 내부 네비게이션으로 처리
+  window.addEventListener('popstate', (e) => {
+    if (!currentUserId) return; // 로그아웃 상태면 무시
+    e.preventDefault();
+
+    const page = e.state?.page;
+    if (page && page !== 'home') {
+      // 이전 페이지로 이동
+      navigate(page);
+    } else {
+      // 홈으로 이동 (로그아웃 방지)
+      goHomeAfterLogin();
+    }
+    // 히스토리 스택 유지 (앱 밖으로 나가지 않도록)
+    history.pushState({ page: page || 'home' }, '', '#' + (page || 'home'));
+  });
+
+  // 초기 히스토리 상태 설정
+  history.replaceState({ page: 'home' }, '', '#home');
 
   // 음성 목록 미리 로드
   if (window.speechSynthesis) speechSynthesis.getVoices();
