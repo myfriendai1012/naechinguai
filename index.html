@@ -213,26 +213,51 @@
     .chat-layout { grid-template-columns: 1fr; }
     .chat-sidebar { display: none; }
     .biz-grid { grid-template-columns: 1fr; }
-    .main { padding-bottom: 70px; } /* 하단 네비 공간 확보 */
-  }
-  @media (max-width: 768px) {
+    .main { padding-bottom: 65px !important; }
     .mobile-only-flex { display: flex !important; }
-    .main { padding-bottom: 70px; }
+    /* 채팅 페이지: 하단 네비 위에서 꽉 차게 */
+    #page-chat.active {
+      position: fixed !important;
+      top: 0; left: 0; right: 0;
+      bottom: 65px !important;
+      overflow: hidden !important;
+      padding: 0 !important;
+    }
+    #page-chat .chat-layout {
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    #page-chat .chat-panel {
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100% !important;
+      overflow: hidden !important;
+    }
+    #page-chat .chat-messages {
+      flex: 1 !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+    #page-chat .chat-input-area {
+      flex-shrink: 0 !important;
+    }
   }
   @media (min-width: 769px) {
     .mobile-only-flex { display: none !important; }
     .mobile-nav { display: none !important; }
   }
 
-  /* ── 모바일 하단 네비게이션 ── */
+  /* ── 모바일 하단 네비게이션 (항상 고정 — 카카오톡 방식) ── */
   .mobile-nav {
     display: none;
     position: fixed;
     bottom: 0; left: 0; right: 0;
     background: var(--surface);
-    border-top: 1px solid var(--border);
-    z-index: 999;
-    padding: 6px 0 env(safe-area-inset-bottom, 6px);
+    border-top: 1.5px solid var(--border);
+    z-index: 9999;
+    padding: 4px 0 env(safe-area-inset-bottom, 4px);
+    box-shadow: 0 -2px 12px rgba(108,92,231,0.08);
   }
   @media (max-width: 768px) {
     .mobile-nav { display: flex; }
@@ -973,8 +998,6 @@
       <div class="chat-layout">
         <div class="chat-panel">
           <div class="chat-header">
-            <!-- 모바일 뒤로가기 버튼 -->
-            <button onclick="goHomeAfterLogin()" style="display:none;width:30px;height:30px;border-radius:50%;border:none;background:var(--primary-light);cursor:pointer;font-size:16px;align-items:center;justify-content:center;flex-shrink:0;margin-right:2px" id="chat-back-btn" class="mobile-only-flex">←</button>
             <div class="chat-avatar" id="luna-avatar">🌙</div>
             <div>
               <div class="chat-name">루나</div>
@@ -2911,19 +2934,6 @@ ${langInstr}
     document.querySelectorAll('.mn-item').forEach(el => el.classList.remove('active'));
     const id = MN_MAP[page];
     if (id) { const el = document.getElementById(id); if (el) el.classList.add('active'); }
-
-    // 대화 페이지에서는 하단 네비 숨기기
-    const mobileNav = document.getElementById('mobile-nav');
-    const moreMenu = document.getElementById('mobile-more-menu');
-    if (mobileNav) {
-      if (page === 'chat') {
-        mobileNav.style.display = 'none';
-        if (moreMenu) moreMenu.style.display = 'none';
-      } else {
-        mobileNav.style.display = '';
-      }
-    }
-
     // history API로 뒤로가기 처리 (로그아웃 방지)
     if (currentUserId) {
       history.pushState({ page }, '', '#' + page);
