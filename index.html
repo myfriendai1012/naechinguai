@@ -211,7 +211,12 @@
     .biz-grid { grid-template-columns: 1fr; }
     .main { padding-bottom: 70px; } /* 하단 네비 공간 확보 */
   }
+  @media (max-width: 768px) {
+    .mobile-only-flex { display: flex !important; }
+    .main { padding-bottom: 70px; }
+  }
   @media (min-width: 769px) {
+    .mobile-only-flex { display: none !important; }
     .mobile-nav { display: none !important; }
   }
 
@@ -831,11 +836,13 @@
             </div>
             <div class="profile-field">
               <label class="profile-label">아이디 만들기 <span style="color:var(--danger)">*</span></label>
-              <input class="profile-input" id="prof-id" type="text" placeholder="영문+숫자, 4~12자" maxlength="12" autocomplete="username">
+              <input class="profile-input" id="prof-id" type="text" placeholder="영문+숫자, 4~12자" maxlength="12" autocomplete="username" oninput="checkIdAvailable(this.value)">
+              <div id="id-status" style="font-size:11px;margin-top:4px;display:none"></div>
             </div>
             <div class="profile-field">
               <label class="profile-label">비밀번호 만들기 <span style="color:var(--danger)">*</span></label>
-              <input class="profile-input" id="prof-pw" type="password" placeholder="4자 이상" maxlength="20" autocomplete="new-password">
+              <input class="profile-input" id="prof-pw" type="password" placeholder="4자 이상" maxlength="20" autocomplete="new-password" oninput="checkPwStrength(this.value)">
+              <div id="pw-status" style="font-size:11px;margin-top:4px;display:none"></div>
             </div>
           </div>
 
@@ -854,6 +861,19 @@
 
       <!-- 프로필 저장 후 표시 -->
       <div id="home-after-profile" style="display:none">
+
+        <!-- 상단 헤더 (이름 + 로그아웃) -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:24px">🌙</span>
+            <div>
+              <div style="font-size:16px;font-weight:900;color:var(--primary)" id="home-user-name">안녕하세요!</div>
+              <div style="font-size:11px;color:var(--text-muted)">루나가 기다리고 있어요</div>
+            </div>
+          </div>
+          <button onclick="doLogout()" style="padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer">로그아웃</button>
+        </div>
+
         <div class="notif-banner" onclick="navigate('chat')">
           <div class="notif-icon">🔔</div>
           <div class="notif-text" id="notif-text">루나가 먼저 말을 걸었어요! 이야기하러 가볼까요?</div>
@@ -949,6 +969,8 @@
       <div class="chat-layout">
         <div class="chat-panel">
           <div class="chat-header">
+            <!-- 모바일 뒤로가기 버튼 -->
+            <button onclick="goHomeAfterLogin()" style="display:none;width:30px;height:30px;border-radius:50%;border:none;background:var(--primary-light);cursor:pointer;font-size:16px;align-items:center;justify-content:center;flex-shrink:0;margin-right:2px" id="chat-back-btn" class="mobile-only-flex">←</button>
             <div class="chat-avatar" id="luna-avatar">🌙</div>
             <div>
               <div class="chat-name">루나</div>
@@ -1579,13 +1601,9 @@ ${langInstr}
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${window._OPENAI_KEY || ''}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'gpt-4.1-mini',
-          max_tokens: 300,
-          temperature: 0.85,
           messages
         })
       });
@@ -1893,6 +1911,9 @@ ${langInstr}
     if (notifEl) notifEl.textContent = `루나가 먼저 말을 걸었어요! ${interestText}`;
 
     // 책 추천 페이지 부제목 업데이트
+    const homeUserName = document.getElementById('home-user-name');
+    if (homeUserName) homeUserName.textContent = `안녕하세요, ${name}! 👋`;
+
     const bookSub = document.getElementById('book-page-sub');
     if (bookSub) bookSub.textContent = `${name}의 관심사와 대화 내용을 바탕으로 골랐어요`;
   }
@@ -1966,6 +1987,48 @@ ${langInstr}
       navigate('chat');
       setTimeout(() => runWelcomeTour(name), 500);
     }, 1400);
+  }
+
+  function checkIdAvailable(val) {
+    const el = document.getElementById('id-status');
+    if (!el) return;
+    if (!val) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    if (val.length < 4) {
+      el.textContent = '❌ 4자 이상 입력해 주세요.';
+      el.style.color = 'var(--danger)';
+      return;
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(val)) {
+      el.textContent = '❌ 영문·숫자만 사용 가능해요.';
+      el.style.color = 'var(--danger)';
+      return;
+    }
+    const stored = JSON.parse(localStorage.getItem(LS_USERS) || '{}');
+    if (stored[val]) {
+      el.textContent = '❌ 이미 사용 중인 아이디예요.';
+      el.style.color = 'var(--danger)';
+    } else {
+      el.textContent = '✅ 사용 가능한 아이디예요!';
+      el.style.color = 'var(--success)';
+    }
+  }
+
+  function checkPwStrength(val) {
+    const el = document.getElementById('pw-status');
+    if (!el) return;
+    if (!val) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    if (val.length < 4) {
+      el.textContent = '❌ 4자 이상 입력해 주세요.';
+      el.style.color = 'var(--danger)';
+    } else if (val.length < 6) {
+      el.textContent = '⚠️ 조금 더 길게 만들면 더 안전해요.';
+      el.style.color = 'var(--warn)';
+    } else {
+      el.textContent = '✅ 안전한 비밀번호예요!';
+      el.style.color = 'var(--success)';
+    }
   }
 
   function showSignupError(msg) {
@@ -2753,6 +2816,29 @@ ${langInstr}
     setTimeout(() => el.remove(), 4000);
   }
 
+  // 로그인 후 홈으로 이동 (랜딩 페이지 아닌 통계 화면)
+  function goHomeAfterLogin() {
+    navigate('home');
+    document.getElementById('home-landing').style.display = 'none';
+    document.getElementById('home-auth').style.display = 'none';
+    document.getElementById('home-after-profile').style.display = 'block';
+    updateMonthlyStats();
+  }
+
+  // 로그아웃
+  function doLogout() {
+    currentUserId = null;
+    userProfile = null;
+    chatHistory = [];
+    memoryNotes = [];
+    bondXP = 0; bondLevel = 1;
+    navigate('home');
+    document.getElementById('home-landing').style.display = 'block';
+    document.getElementById('home-auth').style.display = 'none';
+    document.getElementById('home-after-profile').style.display = 'none';
+    showToast('로그아웃됐어요. 다음에 또 만나요 🌙');
+  }
+
   /* ═══════════════════════════════
      랜딩 페이지 ↔ 로그인/회원가입
   ═══════════════════════════════ */
@@ -2821,6 +2907,18 @@ ${langInstr}
     document.querySelectorAll('.mn-item').forEach(el => el.classList.remove('active'));
     const id = MN_MAP[page];
     if (id) { const el = document.getElementById(id); if (el) el.classList.add('active'); }
+
+    // 대화 페이지에서는 하단 네비 숨기기
+    const mobileNav = document.getElementById('mobile-nav');
+    const moreMenu = document.getElementById('mobile-more-menu');
+    if (mobileNav) {
+      if (page === 'chat') {
+        mobileNav.style.display = 'none';
+        if (moreMenu) moreMenu.style.display = 'none';
+      } else {
+        mobileNav.style.display = '';
+      }
+    }
   }
 
   function toggleMobileMore() {
