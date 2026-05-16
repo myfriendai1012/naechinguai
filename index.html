@@ -271,9 +271,8 @@ html, body {
 .hero-sub { font-size:13px; opacity:0.9; line-height:1.7; margin-bottom:18px; }
 .hero-cta { background:white; color:var(--primary); padding:12px 24px; font-size:14px; box-shadow:0 4px 16px rgba(0,0,0,0.15); }
 
-.features-scroll { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; scrollbar-width:none; -ms-overflow-style:none; scroll-snap-type:x mandatory; }
-.features-scroll::-webkit-scrollbar { display:none; }
-.feature-card { flex-shrink:0; width:130px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 12px; text-align:center; scroll-snap-align:start; }
+.features-scroll { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:4px; }
+.feature-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 12px; text-align:center; }
 .feature-icon { font-size:28px; margin-bottom:8px; }
 .feature-name { font-size:12px; font-weight:800; color:var(--text); margin-bottom:5px; }
 .feature-desc { font-size:10px; color:var(--text-muted); line-height:1.5; }
@@ -884,6 +883,59 @@ html, body {
   background:var(--primary);border-color:var(--primary);color:white;
 }
 
+/* ══════════════════════════════════════
+   루나 이름 변경
+══════════════════════════════════════ */
+.luna-name-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--primary-light); border-radius: 12px;
+  padding: 10px 14px; margin-bottom: 12px;
+}
+.luna-name-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+.luna-name-display { font-size: 16px; font-weight: 900; color: var(--primary); flex: 1; }
+.luna-name-edit-btn {
+  background: none; border: 1.5px solid var(--primary);
+  color: var(--primary); border-radius: 20px;
+  padding: 4px 12px; font-size: 12px; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+}
+
+/* ══════════════════════════════════════
+   포토 갤러리
+══════════════════════════════════════ */
+.photo-add-btn {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 6px;
+  width: 100%; padding: 20px;
+  border: 2px dashed var(--primary); border-radius: 14px;
+  background: var(--primary-light); cursor: pointer;
+  margin-bottom: 16px;
+}
+.photo-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 8px;
+}
+.photo-item {
+  aspect-ratio: 1; border-radius: 10px; overflow: hidden;
+  cursor: pointer; position: relative; background: var(--bg);
+  border: 1px solid var(--border);
+}
+.photo-item img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.2s;
+}
+.photo-item:active img { transform: scale(0.96); }
+.photo-item-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.55); color: white;
+  font-size: 10px; font-weight: 600;
+  padding: 4px 6px; text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.photo-empty {
+  grid-column: 1/-1; text-align: center;
+  padding: 40px 20px; color: var(--text-muted); font-size: 14px; line-height: 2;
+}
+
 </style>
 </head>
 <body>
@@ -909,8 +961,9 @@ html, body {
             </div>
           </div>
           <div class="home-header-btns">
-            <button class="btn-outline" onclick="showAuth('login')">로그인</button>
-            <button class="btn-primary" onclick="showAuth('signup')">회원가입</button>
+            <button class="btn-outline" id="header-login-btn" onclick="showAuth('login')" style="display:block">로그인</button>
+            <button class="btn-primary" id="header-signup-btn" onclick="showAuth('signup')" style="display:block">회원가입</button>
+            <button class="btn-outline" id="header-logout-btn" onclick="doLogout()" style="display:none;font-size:12px;padding:8px 16px">로그아웃</button>
           </div>
         </div>
 
@@ -1194,7 +1247,6 @@ html, body {
               <div class="home-logo-sub">루나가 기다리고 있어요</div>
             </div>
           </div>
-          <button class="btn-outline" onclick="doLogout()" style="font-size:12px;padding:6px 12px">로그아웃</button>
         </div>
 
         <!-- 루나 알림 배너 -->
@@ -1353,30 +1405,82 @@ html, body {
 
     <!-- 꾸미기 -->
     <div class="page" id="page-growth">
-      <div class="page-title">🎨 루나 꾸미기</div>
-      <div class="page-sub">캐릭터를 나만의 스타일로 꾸며보세요</div>
+      <div class="page-title">🎨 꾸미기</div>
+      <div class="page-sub">루나를 꾸미고 소중한 사진을 보관해요</div>
 
-      <!-- 캐릭터 타입 선택 -->
+      <!-- 탭 선택 -->
       <div class="ctype-row">
-        <button class="ctype-btn active" id="ctype-luna" onclick="setCharType('luna')">🌙 루나</button>
-        <button class="ctype-btn" id="ctype-boy" onclick="setCharType('boy')">👦 남자</button>
-        <button class="ctype-btn" id="ctype-girl" onclick="setCharType('girl')">👧 여자</button>
+        <button class="ctype-btn active" id="ctype-luna" onclick="setGrowthTab('luna')">🌙 루나 꾸미기</button>
+        <button class="ctype-btn" id="ctype-photo" onclick="setGrowthTab('photo')">📷 포토갤러리</button>
       </div>
 
-      <!-- 캐릭터 미리보기 -->
-      <div class="char-stage">
-        <div class="char-stage-bg" id="char-stage-bg">
-          <svg id="char-svg" viewBox="0 0 200 300" width="140" height="210">
-          </svg>
+      <!-- ── 루나 꾸미기 섹션 ── -->
+      <div id="growth-luna">
+
+        <!-- 루나 이름 변경 -->
+        <div class="luna-name-row">
+          <span class="luna-name-label">AI 친구 이름:</span>
+          <span class="luna-name-display" id="luna-name-display">루나</span>
+          <button class="luna-name-edit-btn" onclick="openLunaNameEdit()">✏️ 변경</button>
         </div>
-        <div class="char-badge" id="char-badge">🌱 새싹 친구</div>
-      </div>
 
-      <!-- 아이템 카테고리 탭 (가로 스크롤) -->
-      <div class="icat-scroll" id="icat-scroll"></div>
+        <!-- 이름 변경 폼 -->
+        <div id="luna-name-form" style="display:none;background:var(--primary-light);border-radius:12px;padding:14px;margin-bottom:12px">
+          <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:8px">AI 친구 이름 변경</div>
+          <div style="display:flex;gap:8px">
+            <input id="luna-name-input" class="auth-input" type="text" placeholder="새 이름 입력 (최대 6자)" maxlength="6" style="flex:1">
+            <button onclick="saveLunaName()" class="btn-primary" style="padding:10px 14px;border-radius:10px;font-size:13px">저장</button>
+            <button onclick="closeLunaNameEdit()" style="padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-family:inherit;cursor:pointer;color:var(--text-muted)">취소</button>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:6px">💡 변경하면 대화창에서도 새 이름으로 불러요</div>
+        </div>
 
-      <!-- 아이템 그리드 -->
-      <div class="igrid" id="igrid"></div>
+        <!-- 캐릭터 미리보기 -->
+        <div class="char-stage">
+          <div class="char-stage-bg" id="char-stage-bg">
+            <svg id="char-svg" viewBox="0 0 200 300" width="140" height="210"></svg>
+          </div>
+          <div class="char-badge" id="char-badge">🌱 새싹 친구</div>
+        </div>
+
+        <!-- 아이템 카테고리 -->
+        <div class="icat-scroll" id="icat-scroll"></div>
+
+        <!-- 아이템 그리드 -->
+        <div class="igrid" id="igrid"></div>
+
+      </div><!-- /growth-luna -->
+
+      <!-- ── 포토갤러리 섹션 ── -->
+      <div id="growth-photo" style="display:none">
+
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.6">
+          소중한 사람들의 사진을 보관해요 📷<br>
+          <span style="font-size:11px">최대 20장 · 기기에만 저장돼요</span>
+        </div>
+
+        <!-- 사진 추가 버튼 -->
+        <label class="photo-add-btn" for="photo-upload">
+          <span style="font-size:28px">📷</span>
+          <span style="font-size:13px;font-weight:700;color:var(--primary)">사진 추가하기</span>
+          <span style="font-size:11px;color:var(--text-muted)">탭해서 사진 선택</span>
+        </label>
+        <input type="file" id="photo-upload" accept="image/*" multiple style="display:none" onchange="addPhotos(this)">
+
+        <!-- 사진 그리드 -->
+        <div class="photo-grid" id="photo-grid"></div>
+
+        <!-- 사진 상세 모달 -->
+        <div id="photo-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;flex-direction:column;align-items:center;justify-content:center">
+          <button onclick="closePhotoModal()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:24px;width:40px;height:40px;border-radius:50%;cursor:pointer">✕</button>
+          <img id="photo-modal-img" style="max-width:90vw;max-height:75vh;border-radius:12px;object-fit:contain">
+          <div style="margin-top:16px;display:flex;gap:12px">
+            <div id="photo-modal-label" style="color:white;font-size:14px;font-weight:600"></div>
+            <button id="photo-modal-delete" onclick="deletePhoto()" style="background:#E17055;border:none;color:white;font-size:13px;font-weight:700;padding:8px 18px;border-radius:20px;cursor:pointer;font-family:inherit">🗑 삭제</button>
+          </div>
+        </div>
+
+      </div><!-- /growth-photo -->
 
     </div>
 
@@ -1441,7 +1545,6 @@ html, body {
             <div class="plan-feat">✅ 위기 상황 SMS 알림</div>
             <div class="plan-feat">✅ 월간 감정 리포트</div>
             <div class="plan-feat">✅ 독서·영어 교육 상담</div>
-            <div class="plan-feat">✅ 보호자 사용 시간 설정</div>
             <div class="plan-feat">✅ 특별 스킨</div>
           </div>
           <button class="plan-btn-select primary" onclick="openPayment('eternal')">시작하기</button>
@@ -1634,14 +1737,61 @@ async function doLogin() {
   onLoginSuccess(id, users[id]);
 }
 
+// 헤더 버튼 상태 업데이트
+function updateHeaderBtns(loggedIn) {
+  const loginBtn  = document.getElementById('header-login-btn');
+  const signupBtn = document.getElementById('header-signup-btn');
+  const logoutBtn = document.getElementById('header-logout-btn');
+  if (!loginBtn) return;
+  if (loggedIn) {
+    loginBtn.style.display  = 'none';
+    signupBtn.style.display = 'none';
+    logoutBtn.style.display = 'block';
+  } else {
+    loginBtn.style.display  = 'block';
+    signupBtn.style.display = 'block';
+    logoutBtn.style.display = 'none';
+  }
+}
+
 function onLoginSuccess(id, profile) {
   const name = profile.name || id;
+  window._userProfile = { ...profile, userId: id };
+  localStorage.setItem('luna_session', JSON.stringify({ id, name }));
   document.getElementById('home-landing').style.display = 'none';
   document.getElementById('home-auth').style.display    = 'none';
   document.getElementById('home-after').style.display   = 'block';
   document.getElementById('home-username').textContent  = `안녕하세요, ${name}! 👋`;
   schedAlertShown = false;
+  updateHeaderBtns(true);
 }
+
+function doLogout() {
+  window._userProfile = null;
+  localStorage.removeItem('luna_session');
+  chatHistory = [];
+  schedAlertShown = false;
+  updateHeaderBtns(false);
+  showLanding();
+  goPage('home');
+}
+
+// 앱 시작 시 로그인 상태 복원
+function restoreSession() {
+  const saved = localStorage.getItem('luna_session');
+  if (!saved) return;
+  try {
+    const { id } = JSON.parse(saved);
+    const users = JSON.parse(localStorage.getItem(LS_USERS) || '{}');
+    if (users[id]) {
+      window._userProfile = { ...users[id], userId: id };
+      onLoginSuccess(id, users[id]);
+    }
+  } catch(e) {
+    localStorage.removeItem('luna_session');
+  }
+}
+restoreSession();
 
 function toggleChip(el) { el.classList.toggle('selected'); }
 
@@ -1732,7 +1882,7 @@ function submitForgotPw() {
 
 async function runWelcomeTour(name) {
   const steps = [
-    `안녕 ${name}아! 나는 루나야! 처음 만나서 반가워. 앞으로 같이 많은 이야기 나눠보자!`,
+    `안녕 ${name}아! 나는 루나야! 처음 만나서 반가워. 앞으로 많은 이야기 나눠보자?`,
     `나는 네 이야기를 기억하고 함께 성장할 수 있도록 노력할거야. 네가 일정 등록을 하면 내가 미리 알려줄게. 네 관심사와 대화 중에 흥미 있어하는 분야의 책도 추천해줄게. 우리 좋은 친구가 되자!`,
   ];
   for (const msg of steps) {
@@ -2315,24 +2465,125 @@ function renderCharSVG() {
   html += `<circle cx="${cx-bodyW/2-armW/2+4}" cy="${bodyY+6+armH+9}" r="10" fill="${skin}"/>`;
   html += `<circle cx="${cx+bodyW/2+armW/2-4}" cy="${bodyY+6+armH+9}" r="10" fill="${skin}"/>`;
 
-  // 상의
-  html += `<rect x="${cx-bodyW/2}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="10" fill="${topC}"/>`;
+  // 상의 (모양으로 구분)
+  const topShapes = {
+    tshirt:  `<rect x="${cx-bodyW/2}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="6" fill="#4A90D9"/>
+              <path d="M${cx-bodyW/2} ${bodyY+10} L${cx-bodyW/2+8} ${bodyY} L${cx+bodyW/2-8} ${bodyY} L${cx+bodyW/2} ${bodyY+10}" fill="#3A80C9"/>`,
+    uniform: `<rect x="${cx-bodyW/2}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="4" fill="#2C3E6B"/>
+              <rect x="${cx-4}" y="${bodyY}" width="8" height="${bodyH*0.5}" fill="#F5F5F5"/>
+              <circle cx="${cx}" cy="${bodyY+bodyH*0.25}" r="4" fill="#FFD700"/>`,
+    sports:  `<rect x="${cx-bodyW/2}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="8" fill="#E74C3C"/>
+              <rect x="${cx-bodyW/2+6}" y="${bodyY+4}" width="6" height="${bodyH-8}" rx="3" fill="white" opacity="0.5"/>
+              <rect x="${cx+bodyW/2-12}" y="${bodyY+4}" width="6" height="${bodyH-8}" rx="3" fill="white" opacity="0.5"/>`,
+    hoodie:  `<rect x="${cx-bodyW/2}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="10" fill="#6C5CE7"/>
+              <ellipse cx="${cx}" cy="${bodyY+4}" rx="10" ry="8" fill="#5A4BD1"/>`,
+    coat:    `<rect x="${cx-bodyW/2}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="4" fill="#795548"/>
+              <rect x="${cx-3}" y="${bodyY}" width="6" height="${bodyH}" fill="#5D4037"/>
+              <rect x="${cx-bodyW/2}" y="${bodyY}" width="8" height="${bodyH}" rx="4" fill="#6D4C41"/>`,
+    suit:    `<rect x="${cx-bodyW/2}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="4" fill="#37474F"/>
+              <rect x="${cx-3}" y="${bodyY}" width="6" height="${bodyH}" fill="#263238"/>
+              <path d="M${cx-8} ${bodyY} L${cx} ${bodyY+16} L${cx+8} ${bodyY}" fill="white"/>`,
+    blouse:  `<rect x="${cx-bodyW/2}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="8" fill="#F8BBD0"/>
+              <circle cx="${cx}" cy="${bodyY+12}" r="3" fill="white"/>
+              <circle cx="${cx}" cy="${bodyY+22}" r="3" fill="white"/>`,
+    dress:   `<rect x="${cx-bodyW/2}" y="${bodyY}" width="${bodyW}" height="${bodyH*0.6}" rx="6" fill="#E91E8C"/>
+              <path d="M${cx-bodyW/2} ${bodyY+bodyH*0.5} Q${cx-bodyW/2-10} ${bodyY+bodyH} ${cx-bodyW/2-16} ${bodyY+bodyH+16} Q${cx} ${bodyY+bodyH+24} ${cx+bodyW/2+16} ${bodyY+bodyH+16} Q${cx+bodyW/2+10} ${bodyY+bodyH} ${cx+bodyW/2} ${bodyY+bodyH*0.5}Z" fill="#E91E8C"/>`,
+    casual:  `<rect x="${cx-bodyW/2}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="8" fill="#81C784"/>
+              <rect x="${cx-bodyW/2+4}" y="${bodyY+6}" width="${bodyW-8}" height="4" rx="2" fill="#66BB6A"/>`,
+    sweater: `<rect x="${cx-bodyW/2}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="8" fill="#FFB74D"/>
+              <path d="M${cx-bodyW/2} ${bodyY+8} Q${cx} ${bodyY+4} ${cx+bodyW/2} ${bodyY+8}" stroke="#FF9800" stroke-width="3" fill="none"/>
+              <path d="M${cx-bodyW/2} ${bodyY+18} Q${cx} ${bodyY+14} ${cx+bodyW/2} ${bodyY+18}" stroke="#FF9800" stroke-width="3" fill="none"/>`,
+    default: `<rect x="${cx-bodyW/2}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="8" fill="${topC}"/>`,
+  };
+  html += topShapes[equipped.top] || topShapes.default;
 
-  // 하의 (여자=치마, 남자=바지)
-  if (isGirl && equipped.bottom !== 'jeans' && equipped.bottom !== 'shorts' && equipped.bottom !== 'leggings') {
-    html += `<path d="M${cx-bodyW/2} ${legY} Q${cx-bodyW/2-14} ${legY+legH} ${cx-bodyW/2-18} ${legY+legH+10} Q${cx} ${legY+legH+18} ${cx+bodyW/2+18} ${legY+legH+10} Q${cx+bodyW/2+14} ${legY+legH} ${cx+bodyW/2} ${legY}Z" fill="${btmC}"/>`;
-  } else {
-    const legW = (bodyW/2-2);
-    html += `<rect x="${cx-bodyW/2}" y="${legY}" width="${legW}" height="${legH}" rx="8" fill="${btmC}"/>`;
-    html += `<rect x="${cx+2}" y="${legY}" width="${legW}" height="${legH}" rx="8" fill="${btmC}"/>`;
+  // 하의 (모양으로 구분)
+  const legW = bodyW/2 - 2;
+  const btmShapes = {
+    jeans:   () => {
+      let s = `<rect x="${cx-bodyW/2}" y="${legY}" width="${legW}" height="${legH}" rx="6" fill="#2C5F8A"/>`;
+      s += `<rect x="${cx+2}" y="${legY}" width="${legW}" height="${legH}" rx="6" fill="#2C5F8A"/>`;
+      s += `<line x1="${cx-bodyW/2+4}" y1="${legY+8}" x2="${cx-bodyW/2+10}" y2="${legY+8}" stroke="#1A4F7A" stroke-width="2"/>`;
+      return s;
+    },
+    shorts:  () => {
+      let s = `<rect x="${cx-bodyW/2}" y="${legY}" width="${legW}" height="${legH*0.6}" rx="6" fill="#5D9CEC"/>`;
+      s += `<rect x="${cx+2}" y="${legY}" width="${legW}" height="${legH*0.6}" rx="6" fill="#5D9CEC"/>`;
+      // 맨살 다리
+      s += `<rect x="${cx-bodyW/2+2}" y="${legY+legH*0.6}" width="${legW-4}" height="${legH*0.4}" rx="4" fill="${skin}"/>`;
+      s += `<rect x="${cx+4}" y="${legY+legH*0.6}" width="${legW-4}" height="${legH*0.4}" rx="4" fill="${skin}"/>`;
+      return s;
+    },
+    skirt:   () => `<path d="M${cx-bodyW/2} ${legY} Q${cx-bodyW/2-16} ${legY+legH} ${cx-bodyW/2-20} ${legY+legH+12} Q${cx} ${legY+legH+20} ${cx+bodyW/2+20} ${legY+legH+12} Q${cx+bodyW/2+16} ${legY+legH} ${cx+bodyW/2} ${legY}Z" fill="#E91E8C"/>`,
+    uniform: () => {
+      let s = `<rect x="${cx-bodyW/2}" y="${legY}" width="${legW}" height="${legH}" rx="4" fill="#2C3E6B"/>`;
+      s += `<rect x="${cx+2}" y="${legY}" width="${legW}" height="${legH}" rx="4" fill="#2C3E6B"/>`;
+      return s;
+    },
+    jogger:  () => {
+      let s = `<rect x="${cx-bodyW/2}" y="${legY}" width="${legW}" height="${legH}" rx="10" fill="#546E7A"/>`;
+      s += `<rect x="${cx+2}" y="${legY}" width="${legW}" height="${legH}" rx="10" fill="#546E7A"/>`;
+      s += `<rect x="${cx-bodyW/2}" y="${legY+legH-6}" width="${legW}" height="6" rx="3" fill="#455A64"/>`;
+      s += `<rect x="${cx+2}" y="${legY+legH-6}" width="${legW}" height="6" rx="3" fill="#455A64"/>`;
+      return s;
+    },
+    leggings:() => {
+      let s = `<rect x="${cx-bodyW/2}" y="${legY}" width="${legW}" height="${legH}" rx="6" fill="#6C5CE7"/>`;
+      s += `<rect x="${cx+2}" y="${legY}" width="${legW}" height="${legH}" rx="6" fill="#6C5CE7"/>`;
+      return s;
+    },
+    slacks:  () => {
+      let s = `<rect x="${cx-bodyW/2}" y="${legY}" width="${legW}" height="${legH}" rx="2" fill="#37474F"/>`;
+      s += `<rect x="${cx+2}" y="${legY}" width="${legW}" height="${legH}" rx="2" fill="#37474F"/>`;
+      s += `<line x1="${cx-bodyW/2+legW/2}" y1="${legY}" x2="${cx-bodyW/2+legW/2}" y2="${legY+legH}" stroke="#263238" stroke-width="1.5"/>`;
+      return s;
+    },
+  };
+  const btmFn = btmShapes[equipped.bottom];
+  html += btmFn ? btmFn() : `<rect x="${cx-bodyW/2}" y="${legY}" width="${legW}" height="${legH}" rx="6" fill="${btmC}"/><rect x="${cx+2}" y="${legY}" width="${legW}" height="${legH}" rx="6" fill="${btmC}"/>`;
+
+  // 여자아이 치마일 때 다리 표시
+  if (isGirl && (equipped.bottom === 'skirt' || equipped.bottom === 'uniform' || !equipped.bottom || equipped.bottom === 'default')) {
+    html += `<rect x="${cx-bodyW/2+4}" y="${legY+legH+12}" width="${legW-8}" height="${legH*0.6}" rx="6" fill="${skin}"/>`;
+    html += `<rect x="${cx+6}" y="${legY+legH+12}" width="${legW-8}" height="${legH*0.6}" rx="6" fill="${skin}"/>`;
   }
 
-  // 신발
-  html += `<ellipse cx="${cx-bodyW/4-2}" cy="${shoeY}" rx="16" ry="8" fill="${shoeC}"/>`;
-  html += `<ellipse cx="${cx+bodyW/4+2}" cy="${shoeY}" rx="16" ry="8" fill="${shoeC}"/>`;
+  // 신발 (모양으로 구분)
+  const shoeShapes = {
+    sneakers:`<rect x="${cx-bodyW/4-16}" y="${shoeY-6}" width="28" height="14" rx="6" fill="#555"/>
+              <rect x="${cx-bodyW/4-14}" y="${shoeY-4}" width="10" height="4" rx="2" fill="white" opacity="0.6"/>`,
+    shoes:   `<path d="M${cx-bodyW/4-14} ${shoeY-6} Q${cx-bodyW/4-16} ${shoeY+6} ${cx-bodyW/4+14} ${shoeY+6} Q${cx-bodyW/4+16} ${shoeY} ${cx-bodyW/4} ${shoeY-8}Z" fill="#5D4037"/>`,
+    boots:   `<rect x="${cx-bodyW/4-12}" y="${shoeY-18}" width="24" height="24" rx="4" fill="#4E342E"/>
+              <rect x="${cx-bodyW/4-14}" y="${shoeY+4}" width="28" height="6" rx="3" fill="#3E2723"/>`,
+    loafer:  `<path d="M${cx-bodyW/4-14} ${shoeY-4} Q${cx-bodyW/4-14} ${shoeY+8} ${cx-bodyW/4+14} ${shoeY+8} L${cx-bodyW/4+16} ${shoeY-4}Z" fill="#6D4C41"/>
+              <rect x="${cx-bodyW/4-6}" y="${shoeY-4}" width="12" height="4" rx="2" fill="#5D4037"/>`,
+    sandals: `<rect x="${cx-bodyW/4-12}" y="${shoeY}" width="24" height="6" rx="3" fill="#FF8A65"/>
+              <rect x="${cx-bodyW/4-8}" y="${shoeY-10}" width="4" height="12" rx="2" fill="#FF8A65"/>
+              <rect x="${cx-bodyW/4+4}" y="${shoeY-10}" width="4" height="12" rx="2" fill="#FF8A65"/>`,
+    heels:   `<path d="M${cx-bodyW/4-10} ${shoeY-4} Q${cx-bodyW/4+12} ${shoeY-2} ${cx-bodyW/4+14} ${shoeY+6} L${cx-bodyW/4-12} ${shoeY+6}Z" fill="#C0392B"/>
+              <rect x="${cx-bodyW/4+10}" y="${shoeY-10}" width="5" height="16" rx="2" fill="#A93226"/>`,
+  };
 
-  // 목
-  html += `<rect x="${cx-9}" y="${neckY}" width="18" height="20}" rx="7" fill="${skin}"/>`;
+  // 왼쪽 신발
+  html += shoeShapes[equipped.shoes] || `<ellipse cx="${cx-bodyW/4-2}" cy="${shoeY}" rx="16" ry="7" fill="${shoeC}"/>`;
+  // 오른쪽 신발 (미러)
+  const mirrorShoe = {
+    sneakers:`<rect x="${cx+bodyW/4-12}" y="${shoeY-6}" width="28" height="14" rx="6" fill="#555"/>
+              <rect x="${cx+bodyW/4-12}" y="${shoeY-4}" width="10" height="4" rx="2" fill="white" opacity="0.6"/>`,
+    shoes:   `<path d="M${cx+bodyW/4-14} ${shoeY-6} Q${cx+bodyW/4-16} ${shoeY+6} ${cx+bodyW/4+14} ${shoeY+6} Q${cx+bodyW/4+16} ${shoeY} ${cx+bodyW/4} ${shoeY-8}Z" fill="#5D4037"/>`,
+    boots:   `<rect x="${cx+bodyW/4-12}" y="${shoeY-18}" width="24" height="24" rx="4" fill="#4E342E"/>
+              <rect x="${cx+bodyW/4-14}" y="${shoeY+4}" width="28" height="6" rx="3" fill="#3E2723"/>`,
+    loafer:  `<path d="M${cx+bodyW/4-14} ${shoeY-4} Q${cx+bodyW/4-14} ${shoeY+8} ${cx+bodyW/4+14} ${shoeY+8} L${cx+bodyW/4+16} ${shoeY-4}Z" fill="#6D4C41"/>`,
+    sandals: `<rect x="${cx+bodyW/4-12}" y="${shoeY}" width="24" height="6" rx="3" fill="#FF8A65"/>
+              <rect x="${cx+bodyW/4-8}" y="${shoeY-10}" width="4" height="12" rx="2" fill="#FF8A65"/>
+              <rect x="${cx+bodyW/4+4}" y="${shoeY-10}" width="4" height="12" rx="2" fill="#FF8A65"/>`,
+    heels:   `<path d="M${cx+bodyW/4-10} ${shoeY-4} Q${cx+bodyW/4+12} ${shoeY-2} ${cx+bodyW/4+14} ${shoeY+6} L${cx+bodyW/4-12} ${shoeY+6}Z" fill="#C0392B"/>
+              <rect x="${cx+bodyW/4+10}" y="${shoeY-10}" width="5" height="16" rx="2" fill="#A93226"/>`,
+  };
+  html += mirrorShoe[equipped.shoes] || `<ellipse cx="${cx+bodyW/4+2}" cy="${shoeY}" rx="16" ry="7" fill="${shoeC}"/>`;
+
+  // 목 (항상 표시)
+  html += `<rect x="${cx-10}" y="${neckY}" width="20" height="22" rx="8" fill="${skin}"/>`;
 
   // 얼굴
   html += `<ellipse cx="${cx}" cy="${headY}" rx="${faceRx}" ry="${faceRy}" fill="${skin}"/>`;
@@ -2341,22 +2592,30 @@ function renderCharSVG() {
   html += `<ellipse cx="${cx-faceRx-4}" cy="${headY+4}" rx="7" ry="10" fill="${skin}"/>`;
   html += `<ellipse cx="${cx+faceRx+4}" cy="${headY+4}" rx="7" ry="10" fill="${skin}"/>`;
 
-  // 귀걸이
-  const earringColors = { circle:'#FFD700', heart:'#FF69B4', star:'#FFD700', flower:'#FF1493', drop:'#87CEEB' };
+  // 귀걸이 (모양으로 구분)
+  const earringShapes = {
+    circle: (x,y) => `<circle cx="${x}" cy="${y}" r="6" fill="#FFD700" stroke="#DAA520" stroke-width="1"/>`,
+    heart:  (x,y) => `<path d="M${x} ${y+6} Q${x-6} ${y} ${x-6} ${y-4} Q${x-6} ${y-9} ${x} ${y-5} Q${x+6} ${y-9} ${x+6} ${y-4} Q${x+6} ${y} ${x} ${y+6}Z" fill="#FF69B4"/>`,
+    star:   (x,y) => `<path d="M${x} ${y-7} L${x+2} ${y-2} L${x+7} ${y-2} L${x+3} ${y+2} L${x+4} ${y+7} L${x} ${y+4} L${x-4} ${y+7} L${x-3} ${y+2} L${x-7} ${y-2} L${x-2} ${y-2}Z" fill="#FFD700"/>`,
+    flower: (x,y) => `<circle cx="${x}" cy="${y-4}" r="4" fill="#FF69B4"/><circle cx="${x+3}" cy="${y+2}" r="4" fill="#FF69B4"/><circle cx="${x-3}" cy="${y+2}" r="4" fill="#FF69B4"/><circle cx="${x}" cy="${y}" r="3" fill="#FFD700"/>`,
+    drop:   (x,y) => `<path d="M${x} ${y-8} Q${x+5} ${y-2} ${x} ${y+6} Q${x-5} ${y-2} ${x} ${y-8}Z" fill="#87CEEB"/>`,
+  };
   if (equipped.earring !== 'none') {
-    const ec = earringColors[equipped.earring] || '#FFD700';
-    html += `<circle cx="${cx-faceRx-4}" cy="${headY+14}" r="5" fill="${ec}"/>`;
-    html += `<circle cx="${cx+faceRx+4}" cy="${headY+14}" r="5" fill="${ec}"/>`;
+    const ef = earringShapes[equipped.earring];
+    if (ef) {
+      html += ef(cx-faceRx-4, headY+16);
+      html += ef(cx+faceRx+4, headY+16);
+    }
   }
 
   // 머리카락 (앞부분)
   const hairFront = {
-    short:   `<path d="M${cx-faceRx-2} ${headY-faceRy*0.3} Q${cx-faceRx} ${headY-faceRy-8} ${cx} ${headY-faceRy-10} Q${cx+faceRx} ${headY-faceRy-8} ${cx+faceRx+2} ${headY-faceRy*0.3}" fill="${hairColor}"/>`,
-    twoblock:`<path d="M${cx-faceRx-2} ${headY-faceRy*0.4} Q${cx-faceRx} ${headY-faceRy-8} ${cx} ${headY-faceRy-10} Q${cx+faceRx} ${headY-faceRy-8} ${cx+faceRx+2} ${headY-faceRy*0.4}" fill="${hairColor}"/>
-              <rect x="${cx-faceRx+4}" y="${headY-faceRy*0.2}" width="${faceRx*0.6}" height="${faceRy*0.4}" rx="3" fill="${hairColor}"/>`,
-    mohawk:  `<rect x="${cx-7}" y="${headY-faceRy-16}" width="14" height="20" rx="5" fill="${hairColor}"/>`,
-    curl:    `<path d="M${cx-faceRx-4} ${headY-faceRy*0.2} Q${cx-faceRx-2} ${headY-faceRy-10} ${cx} ${headY-faceRy-12} Q${cx+faceRx+2} ${headY-faceRy-10} ${cx+faceRx+4} ${headY-faceRy*0.2}" fill="${hairColor}"/>`,
-    default: `<path d="M${cx-faceRx-2} ${headY-faceRy*0.3} Q${cx-faceRx} ${headY-faceRy-8} ${cx} ${headY-faceRy-10} Q${cx+faceRx} ${headY-faceRy-8} ${cx+faceRx+2} ${headY-faceRy*0.3}" fill="${hairColor}"/>`,
+    short:    `<path d="M${cx-faceRx-2} ${headY-faceRy*0.3} Q${cx-faceRx} ${headY-faceRy-8} ${cx} ${headY-faceRy-10} Q${cx+faceRx} ${headY-faceRy-8} ${cx+faceRx+2} ${headY-faceRy*0.3}" fill="${hairColor}"/>`,
+    twoblock: `<path d="M${cx-faceRx-2} ${headY-faceRy*0.4} Q${cx-faceRx} ${headY-faceRy-8} ${cx} ${headY-faceRy-10} Q${cx+faceRx} ${headY-faceRy-8} ${cx+faceRx+2} ${headY-faceRy*0.4}" fill="${hairColor}"/>
+               <rect x="${cx-faceRx+4}" y="${headY-faceRy*0.15}" width="${faceRx*0.55}" height="${faceRy*0.35}" rx="3" fill="${hairColor}"/>`,
+    mohawk:   `<rect x="${cx-7}" y="${headY-faceRy-22}" width="14" height="26" rx="5" fill="${hairColor}"/>`,
+    curl:     `<path d="M${cx-faceRx-4} ${headY-faceRy*0.2} Q${cx-faceRx-2} ${headY-faceRy-10} ${cx} ${headY-faceRy-12} Q${cx+faceRx+2} ${headY-faceRy-10} ${cx+faceRx+4} ${headY-faceRy*0.2}" fill="${hairColor}"/>`,
+    default:  `<path d="M${cx-faceRx-2} ${headY-faceRy*0.3} Q${cx-faceRx} ${headY-faceRy-8} ${cx} ${headY-faceRy-10} Q${cx+faceRx} ${headY-faceRy-8} ${cx+faceRx+2} ${headY-faceRy*0.3}" fill="${hairColor}"/>`,
   };
   html += hairFront[equipped.hair] || hairFront.default;
 
@@ -2366,19 +2625,15 @@ function renderCharSVG() {
 
   // 눈
   if (isGirl) {
-    // 여자: 속눈썹
     html += `<ellipse cx="${cx-12}" cy="${headY+2}" rx="9" ry="10" fill="white"/>`;
     html += `<ellipse cx="${cx+12}" cy="${headY+2}" rx="9" ry="10" fill="white"/>`;
     html += `<circle cx="${cx-11}" cy="${headY+3}" r="6" fill="#3D2B1F"/>`;
     html += `<circle cx="${cx+11}" cy="${headY+3}" r="6" fill="#3D2B1F"/>`;
     html += `<circle cx="${cx-9}" cy="${headY}" r="2" fill="white"/>`;
     html += `<circle cx="${cx+13}" cy="${headY}" r="2" fill="white"/>`;
-    // 속눈썹
     for (let i=0; i<4; i++) {
-      const lx = cx-20+i*5;
-      html += `<line x1="${lx}" y1="${headY-7}" x2="${lx-1}" y2="${headY-12}" stroke="#3D2B1F" stroke-width="1.2" stroke-linecap="round"/>`;
-      const rx2 = cx+4+i*5;
-      html += `<line x1="${rx2}" y1="${headY-7}" x2="${rx2+1}" y2="${headY-12}" stroke="#3D2B1F" stroke-width="1.2" stroke-linecap="round"/>`;
+      html += `<line x1="${cx-20+i*5}" y1="${headY-7}" x2="${cx-21+i*5}" y2="${headY-12}" stroke="#3D2B1F" stroke-width="1.2" stroke-linecap="round"/>`;
+      html += `<line x1="${cx+4+i*5}" y1="${headY-7}" x2="${cx+5+i*5}" y2="${headY-12}" stroke="#3D2B1F" stroke-width="1.2" stroke-linecap="round"/>`;
     }
   } else {
     html += `<ellipse cx="${cx-12}" cy="${headY+2}" rx="9" ry="10" fill="white"/>`;
@@ -2390,66 +2645,124 @@ function renderCharSVG() {
   }
 
   // 코/입
-  html += `<ellipse cx="${cx}" cy="${headY+14}" rx="4" ry="3" fill="${skin==='#FFECD2'?'#E8C4A0':skin==='#8D5524'?'#6B3F1A':'#E8A87C'}"/>`;
-  const smileD = isGirl
-    ? `M${cx-10} ${headY+24} Q${cx} ${headY+32} ${cx+10} ${headY+24}`
-    : `M${cx-12} ${headY+24} Q${cx} ${headY+32} ${cx+12} ${headY+24}`;
+  html += `<ellipse cx="${cx}" cy="${headY+14}" rx="4" ry="3" fill="${skin==='#FFECD2'?'#E8C4A0':'#E8A87C'}"/>`;
+  const smileD = `M${cx-11} ${headY+24} Q${cx} ${headY+32} ${cx+11} ${headY+24}`;
   html += `<path d="${smileD}" stroke="#C97B5A" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
-
-  // 볼
   html += `<ellipse cx="${cx-28}" cy="${headY+18}" rx="10" ry="7" fill="#FFB3C6" opacity="0.5"/>`;
   html += `<ellipse cx="${cx+28}" cy="${headY+18}" rx="10" ry="7" fill="#FFB3C6" opacity="0.5"/>`;
 
-  // 안경
-  const glassColors = { round:'#555', square:'#333', sunglasses:'#111', heart:'#FF69B4', star:'#FFD700' };
+  // 안경 (모양 명확히 구분)
   if (equipped.glasses !== 'none') {
-    const gc = glassColors[equipped.glasses] || '#555';
-    if (equipped.glasses === 'sunglasses') {
-      html += `<ellipse cx="${cx-12}" cy="${headY+2}" rx="11" ry="10" fill="${gc}" opacity="0.8"/>`;
-      html += `<ellipse cx="${cx+12}" cy="${headY+2}" rx="11" ry="10" fill="${gc}" opacity="0.8"/>`;
+    const gc = equipped.glasses==='sunglasses'?'#111':equipped.glasses==='heart'?'#FF69B4':equipped.glasses==='star'?'#FFD700':'#222';
+    const sw = equipped.glasses==='square' ? 3 : 2;
+    if (equipped.glasses==='sunglasses') {
+      html += `<rect x="${cx-24}" y="${headY-6}" width="20" height="16" rx="8" fill="#111" opacity="0.85"/>`;
+      html += `<rect x="${cx+4}" y="${headY-6}" width="20" height="16" rx="8" fill="#111" opacity="0.85"/>`;
+      html += `<line x1="${cx-4}" y1="${headY+2}" x2="${cx+4}" y2="${headY+2}" stroke="#333" stroke-width="2"/>`;
+    } else if (equipped.glasses==='square') {
+      // 네모 안경 - 명확한 사각형
+      html += `<rect x="${cx-24}" y="${headY-7}" width="20" height="16" rx="2" fill="none" stroke="${gc}" stroke-width="${sw}"/>`;
+      html += `<rect x="${cx+4}" y="${headY-7}" width="20" height="16" rx="2" fill="none" stroke="${gc}" stroke-width="${sw}"/>`;
+      html += `<line x1="${cx-4}" y1="${headY+1}" x2="${cx+4}" y2="${headY+1}" stroke="${gc}" stroke-width="2"/>`;
+    } else if (equipped.glasses==='heart') {
+      html += `<path d="M${cx-14} ${headY+4} Q${cx-20} ${headY-2} ${cx-20} ${headY-6} Q${cx-20} ${headY-12} ${cx-14} ${headY-8} Q${cx-8} ${headY-12} ${cx-8} ${headY-6} Q${cx-8} ${headY-2} ${cx-14} ${headY+4}Z" fill="none" stroke="${gc}" stroke-width="2"/>`;
+      html += `<path d="M${cx+14} ${headY+4} Q${cx+8} ${headY-2} ${cx+8} ${headY-6} Q${cx+8} ${headY-12} ${cx+14} ${headY-8} Q${cx+20} ${headY-12} ${cx+20} ${headY-6} Q${cx+20} ${headY-2} ${cx+14} ${headY+4}Z" fill="none" stroke="${gc}" stroke-width="2"/>`;
+      html += `<line x1="${cx-4}" y1="${headY-4}" x2="${cx+4}" y2="${headY-4}" stroke="${gc}" stroke-width="2"/>`;
+    } else if (equipped.glasses==='star') {
+      // 별 안경
+      html += `<circle cx="${cx-14}" cy="${headY-1}" r="9" fill="none" stroke="${gc}" stroke-width="2"/>`;
+      html += `<circle cx="${cx+14}" cy="${headY-1}" r="9" fill="none" stroke="${gc}" stroke-width="2"/>`;
+      html += `<text x="${cx-14}" y="${headY+3}" text-anchor="middle" style="font-size:10px">⭐</text>`;
+      html += `<text x="${cx+14}" y="${headY+3}" text-anchor="middle" style="font-size:10px">⭐</text>`;
+      html += `<line x1="${cx-5}" y1="${headY-1}" x2="${cx+5}" y2="${headY-1}" stroke="${gc}" stroke-width="2"/>`;
     } else {
-      html += `<ellipse cx="${cx-12}" cy="${headY+2}" rx="11" ry="10" fill="none" stroke="${gc}" stroke-width="2"/>`;
-      html += `<ellipse cx="${cx+12}" cy="${headY+2}" rx="11" ry="10" fill="none" stroke="${gc}" stroke-width="2"/>`;
+      // 동근 안경
+      html += `<circle cx="${cx-14}" cy="${headY-1}" r="10" fill="none" stroke="${gc}" stroke-width="2.5"/>`;
+      html += `<circle cx="${cx+14}" cy="${headY-1}" r="10" fill="none" stroke="${gc}" stroke-width="2.5"/>`;
+      html += `<line x1="${cx-4}" y1="${headY-1}" x2="${cx+4}" y2="${headY-1}" stroke="${gc}" stroke-width="2"/>`;
     }
-    html += `<line x1="${cx-1}" y1="${headY+2}" x2="${cx+1}" y2="${headY+2}" stroke="${gc}" stroke-width="2"/>`;
   }
 
-  // 모자/머리띠
-  const hatMap = {
-    baseball: `<ellipse cx="${cx}" cy="${headY-faceRy+4}" rx="${faceRx+6}" ry="10" fill="#4A90D9"/>
-               <rect x="${cx-faceRx-10}" y="${headY-faceRy+6}" width="12" height="6" rx="2" fill="#4A90D9"/>`,
-    beanie:   `<path d="M${cx-faceRx-2} ${headY-faceRy+8} Q${cx} ${headY-faceRy-18} ${cx+faceRx+2} ${headY-faceRy+8}" fill="#E74C3C"/>
-               <circle cx="${cx}" cy="${headY-faceRy-16}" r="6" fill="#FFEB3B"/>`,
-    crown:    `<path d="M${cx-20} ${headY-faceRy+2} L${cx-14} ${headY-faceRy-16} L${cx} ${headY-faceRy-6} L${cx+14} ${headY-faceRy-16} L${cx+20} ${headY-faceRy+2}Z" fill="#FFD700"/>`,
-    wizard:   `<path d="M${cx} ${headY-faceRy-30} L${cx-20} ${headY-faceRy+4} L${cx+20} ${headY-faceRy+4}Z" fill="#6C5CE7"/>
-               <ellipse cx="${cx}" cy="${headY-faceRy+4}" rx="24" ry="6" fill="#5A4BD1"/>`,
-    cowboy:   `<ellipse cx="${cx}" cy="${headY-faceRy+4}" rx="${faceRx+10}" ry="6" fill="#8B6914"/>
-               <path d="M${cx-faceRx-2} ${headY-faceRy+2} Q${cx} ${headY-faceRy-16} ${cx+faceRx+2} ${headY-faceRy+2}" fill="#A0791C"/>`,
-    ribbon:   `<path d="M${cx-16} ${headY-faceRy+2} Q${cx-10} ${headY-faceRy-8} ${cx-2} ${headY-faceRy+2} Q${cx-10} ${headY-faceRy+12} ${cx-16} ${headY-faceRy+2}Z" fill="#FF1493"/>
-               <path d="M${cx+2} ${headY-faceRy+2} Q${cx+10} ${headY-faceRy-8} ${cx+16} ${headY-faceRy+2} Q${cx+10} ${headY-faceRy+12} ${cx+2} ${headY-faceRy+2}Z" fill="#FF1493"/>
-               <circle cx="${cx}" cy="${headY-faceRy+2}" r="5" fill="#FF69B4"/>`,
-    hairband: `<rect x="${cx-faceRx-2}" y="${headY-faceRy+2}" width="${(faceRx+2)*2}" height="8" rx="4" fill="#FF69B4"/>`,
-    beret:    `<ellipse cx="${cx+8}" cy="${headY-faceRy}" rx="${faceRx+4}" ry="10" fill="#795548"/>`,
-    flower:   `<circle cx="${cx-faceRx+8}" cy="${headY-faceRy+4}" r="8" fill="#FF69B4"/>
-               <circle cx="${cx-faceRx+8}" cy="${headY-faceRy+4}" r="4" fill="#FFD700"/>`,
+  // 모자 (모양 명확히 구분)
+  const hatMap2 = {
+    baseball: `<ellipse cx="${cx}" cy="${headY-faceRy+6}" rx="${faceRx+8}" ry="10" fill="#E74C3C"/>
+               <ellipse cx="${cx}" cy="${headY-faceRy+4}" rx="${faceRx+6}" ry="7" fill="#C0392B"/>
+               <rect x="${cx-faceRx-14}" y="${headY-faceRy+6}" width="16" height="7" rx="3" fill="#C0392B"/>
+               <text x="${cx+2}" y="${headY-faceRy+4}" text-anchor="middle" style="font-size:9px;fill:white;font-weight:bold">B</text>`,
+    beanie:   `<path d="M${cx-faceRx-4} ${headY-faceRy+10} Q${cx-faceRx} ${headY-faceRy-20} ${cx} ${headY-faceRy-24} Q${cx+faceRx} ${headY-faceRy-20} ${cx+faceRx+4} ${headY-faceRy+10}Z" fill="#E74C3C"/>
+               <ellipse cx="${cx}" cy="${headY-faceRy+10}" rx="${faceRx+4}" ry="6" fill="#C0392B"/>
+               <circle cx="${cx}" cy="${headY-faceRy-24}" r="7" fill="#FFEB3B"/>
+               <line x1="${cx-faceRx}" y1="${headY-faceRy-4}" x2="${cx+faceRx}" y2="${headY-faceRy-4}" stroke="#B71C1C" stroke-width="3"/>`,
+    crown:    `<path d="M${cx-22} ${headY-faceRy+4} L${cx-16} ${headY-faceRy-20} L${cx-6} ${headY-faceRy-8} L${cx} ${headY-faceRy-24} L${cx+6} ${headY-faceRy-8} L${cx+16} ${headY-faceRy-20} L${cx+22} ${headY-faceRy+4}Z" fill="#FFD700" stroke="#DAA520" stroke-width="1.5"/>
+               <circle cx="${cx-16}" cy="${headY-faceRy-20}" r="4" fill="#E91E8C"/>
+               <circle cx="${cx}" cy="${headY-faceRy-24}" r="4" fill="#E91E8C"/>
+               <circle cx="${cx+16}" cy="${headY-faceRy-20}" r="4" fill="#2196F3"/>
+               <rect x="${cx-22}" y="${headY-faceRy+4}" width="44" height="8" rx="3" fill="#FFC107"/>`,
+    wizard:   `<path d="M${cx} ${headY-faceRy-36} L${cx-22} ${headY-faceRy+4} L${cx+22} ${headY-faceRy+4}Z" fill="#4A148C"/>
+               <ellipse cx="${cx}" cy="${headY-faceRy+4}" rx="26" ry="7" fill="#6A1B9A"/>
+               <text x="${cx}" y="${headY-faceRy-10}" text-anchor="middle" style="font-size:12px">⭐</text>
+               <text x="${cx-10}" y="${headY-faceRy-4}" style="font-size:8px">✨</text>`,
+    cowboy:   `<ellipse cx="${cx}" cy="${headY-faceRy+4}" rx="${faceRx+14}" ry="8" fill="#8B6914"/>
+               <path d="M${cx-faceRx-4} ${headY-faceRy+4} Q${cx} ${headY-faceRy-18} ${cx+faceRx+4} ${headY-faceRy+4}" fill="#A0791C"/>
+               <ellipse cx="${cx}" cy="${headY-faceRy-14}" rx="${faceRx-2}" ry="6" fill="#A0791C"/>`,
+    ribbon:   `<path d="M${cx-18} ${headY-faceRy+2} Q${cx-10} ${headY-faceRy-14} ${cx-2} ${headY-faceRy+2} Q${cx-10} ${headY-faceRy+16} ${cx-18} ${headY-faceRy+2}Z" fill="#FF1493"/>
+               <path d="M${cx+2} ${headY-faceRy+2} Q${cx+10} ${headY-faceRy-14} ${cx+18} ${headY-faceRy+2} Q${cx+10} ${headY-faceRy+16} ${cx+2} ${headY-faceRy+2}Z" fill="#FF1493"/>
+               <circle cx="${cx}" cy="${headY-faceRy+2}" r="6" fill="#FF69B4"/>
+               <path d="M${cx-2} ${headY-faceRy+8} Q${cx} ${headY-faceRy+22} ${cx+2} ${headY-faceRy+28}" stroke="#FF1493" stroke-width="3" fill="none"/>`,
+    hairband: `<rect x="${cx-faceRx-4}" y="${headY-faceRy+4}" width="${(faceRx+4)*2}" height="10" rx="5" fill="#FF69B4"/>
+               <circle cx="${cx}" cy="${headY-faceRy+9}" r="5" fill="#FF1493"/>
+               <circle cx="${cx-12}" cy="${headY-faceRy+9}" r="3" fill="#FF69B4"/>
+               <circle cx="${cx+12}" cy="${headY-faceRy+9}" r="3" fill="#FF69B4"/>`,
+    beret:    `<ellipse cx="${cx+10}" cy="${headY-faceRy+2}" rx="${faceRx+6}" ry="12" fill="#795548"/>
+               <circle cx="${cx+faceRx}" cy="${headY-faceRy-4}" r="5" fill="#5D4037"/>
+               <ellipse cx="${cx}" cy="${headY-faceRy+8}" rx="${faceRx+2}" ry="5" fill="#6D4C41"/>`,
+    flower:   `<circle cx="${cx-faceRx+6}" cy="${headY-faceRy+4}" r="10" fill="#FF69B4"/>
+               <circle cx="${cx-faceRx+6}" cy="${headY-faceRy+4}" r="5" fill="#FFD700"/>
+               <circle cx="${cx-faceRx+14}" cy="${headY-faceRy}" r="7" fill="#FF1493"/>
+               <circle cx="${cx-faceRx-2}" cy="${headY-faceRy}" r="7" fill="#E91E8C"/>`,
   };
-  if (equipped.hat !== 'none' && hatMap[equipped.hat]) {
-    html += hatMap[equipped.hat];
+  if (equipped.hat !== 'none' && hatMap2[equipped.hat]) {
+    html += hatMap2[equipped.hat];
   }
 
-  // 목걸이
-  const neckColors = { chain:'#C0C0C0', heart:'#FF69B4', star:'#FFD700', pearl:'#F5F5F5', flower:'#FF1493' };
+  // 목걸이 (모양으로 구분, 빨간색 큼직하게)
+  const necklaceShapes = {
+    chain:    `<path d="M${cx-22} ${neckY+14} Q${cx} ${neckY+26} ${cx+22} ${neckY+14}" stroke="#C0C0C0" stroke-width="3" fill="none" stroke-dasharray="4,3"/>`,
+    heart:    `<path d="M${cx-22} ${neckY+12} Q${cx} ${neckY+24} ${cx+22} ${neckY+12}" stroke="#FF0000" stroke-width="4" fill="none"/>
+               <path d="M${cx} ${neckY+32} Q${cx-8} ${neckY+24} ${cx-8} ${neckY+18} Q${cx-8} ${neckY+12} ${cx} ${neckY+16} Q${cx+8} ${neckY+12} ${cx+8} ${neckY+18} Q${cx+8} ${neckY+24} ${cx} ${neckY+32}Z" fill="#FF0000"/>`,
+    star:     `<path d="M${cx-20} ${neckY+12} Q${cx} ${neckY+22} ${cx+20} ${neckY+12}" stroke="#FF0000" stroke-width="3.5" fill="none"/>
+               <path d="M${cx} ${neckY+22} L${cx+3} ${neckY+29} L${cx+10} ${neckY+29} L${cx+4} ${neckY+34} L${cx+6} ${neckY+41} L${cx} ${neckY+37} L${cx-6} ${neckY+41} L${cx-4} ${neckY+34} L${cx-10} ${neckY+29} L${cx-3} ${neckY+29}Z" fill="#FF0000"/>`,
+    pearl:    `<path d="M${cx-20} ${neckY+12} Q${cx} ${neckY+22} ${cx+20} ${neckY+12}" stroke="#FF0000" stroke-width="2" fill="none"/>
+               <circle cx="${cx-14}" cy="${neckY+16}" r="5" fill="#FF6B6B"/>
+               <circle cx="${cx-4}" cy="${neckY+20}" r="5" fill="#FF4444"/>
+               <circle cx="${cx+6}" cy="${neckY+20}" r="5" fill="#FF6B6B"/>
+               <circle cx="${cx+16}" cy="${neckY+16}" r="5" fill="#FF4444"/>`,
+    flower:   `<path d="M${cx-20} ${neckY+12} Q${cx} ${neckY+22} ${cx+20} ${neckY+12}" stroke="#FF0000" stroke-width="3" fill="none"/>
+               <circle cx="${cx}" cy="${neckY+26}" r="10" fill="#FF0000"/>
+               <circle cx="${cx-8}" cy="${neckY+22}" r="6" fill="#FF4444"/>
+               <circle cx="${cx+8}" cy="${neckY+22}" r="6" fill="#FF4444"/>
+               <circle cx="${cx}" cy="${neckY+18}" r="6" fill="#FF4444"/>
+               <circle cx="${cx}" cy="${neckY+26}" r="5" fill="#FFD700"/>`,
+  };
   if (equipped.necklace !== 'none') {
-    const nc = neckColors[equipped.necklace] || '#FFD700';
-    html += `<path d="M${cx-20} ${neckY+16} Q${cx} ${neckY+28} ${cx+20} ${neckY+16}" stroke="${nc}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
-    html += `<circle cx="${cx}" cy="${neckY+28}" r="5" fill="${nc}"/>`;
+    html += necklaceShapes[equipped.necklace] || necklaceShapes.heart;
   }
 
-  // 팔찌
-  const braceletColors = { watch:'#333', gold:'#FFD700', bead:'#6C5CE7', ribbon:'#FF69B4', smart:'#222' };
+  // 팔찌 (모양으로 구분)
+  const braceletShapes = {
+    watch:   `<rect x="${cx-bodyW/2-armW+2}" y="${bodyY+armH-6}" width="${armW+2}" height="10" rx="3" fill="#333"/>
+              <rect x="${cx-bodyW/2-armW+6}" y="${bodyY+armH-4}" width="${armW-6}" height="6" rx="2" fill="#555"/>
+              <circle cx="${cx-bodyW/2-armW/2+4}" cy="${bodyY+armH-1}" r="2" fill="#00BCD4"/>`,
+    gold:    `<rect x="${cx-bodyW/2-armW+2}" y="${bodyY+armH-4}" width="${armW+2}" height="8" rx="4" fill="#FFD700" stroke="#DAA520" stroke-width="1"/>`,
+    bead:    `<rect x="${cx-bodyW/2-armW+2}" y="${bodyY+armH-4}" width="${armW+2}" height="8" rx="4" fill="none" stroke="#6C5CE7" stroke-width="2"/>
+              <circle cx="${cx-bodyW/2-armW+7}" cy="${bodyY+armH}" r="3" fill="#9C27B0"/>
+              <circle cx="${cx-bodyW/2-armW+14}" cy="${bodyY+armH}" r="3" fill="#E91E8C"/>`,
+    ribbon:  `<path d="M${cx-bodyW/2-armW+4} ${bodyY+armH} Q${cx-bodyW/2-armW/2+4} ${bodyY+armH-10} ${cx-bodyW/2+4} ${bodyY+armH} Q${cx-bodyW/2-armW/2+4} ${bodyY+armH+10} ${cx-bodyW/2-armW+4} ${bodyY+armH}Z" fill="#FF69B4"/>`,
+    smart:   `<rect x="${cx-bodyW/2-armW+2}" y="${bodyY+armH-6}" width="${armW+2}" height="12" rx="4" fill="#1A1A2E"/>
+              <rect x="${cx-bodyW/2-armW+4}" y="${bodyY+armH-4}" width="${armW-2}" height="8" rx="2" fill="#0066FF" opacity="0.8"/>`,
+  };
   if (equipped.bracelet !== 'none') {
-    const bc = braceletColors[equipped.bracelet] || '#FFD700';
-    html += `<rect x="${cx-bodyW/2-armW+2}" y="${bodyY+armH}" width="${armW+2}" height="7" rx="3" fill="${bc}"/>`;
+    html += braceletShapes[equipped.bracelet] || '';
   }
 
   svg.innerHTML = html;
@@ -2489,20 +2802,52 @@ function renderLunaSVG() {
 
   // 머리 장식
   const headMap = {
-    crown:  `<path d="M67 72 L74 58 L87 68 L100 56 L113 68 L120 72Z" fill="#FFD700"/>`,
-    ribbon: `<path d="M66 74 Q74 64 82 74 Q74 84 66 74Z" fill="#FF1493"/><path d="M82 74 Q90 64 98 74 Q90 84 82 74Z" fill="#FF1493"/><circle cx="82" cy="74" r="6" fill="#FF69B4"/>`,
-    star:   `<path d="M87 56 L90 66 L100 66 L92 73 L95 83 L87 77 L79 83 L82 73 L74 66 L84 66Z" fill="#FFD700"/>`,
-    flower: `<circle cx="87" cy="64" r="10" fill="#FF69B4"/><circle cx="87" cy="64" r="5" fill="#FFD700"/>`,
-    leaf:   `<path d="M87 58 Q100 68 92 82 Q80 72 87 58Z" fill="#4CAF50"/><line x1="87" y1="58" x2="90" y2="78" stroke="#2E7D32" stroke-width="1.5" fill="none"/>`,
-    bow:    `<path d="M70 76 Q78 68 86 76 Q78 84 70 76Z" fill="#6C5CE7"/><path d="M88 76 Q96 68 104 76 Q96 84 88 76Z" fill="#6C5CE7"/><circle cx="87" cy="76" r="5" fill="#AFA9EC"/>`,
+    crown:  `<path d="M67 72 L72 52 L80 65 L87 48 L94 65 L102 52 L107 72Z" fill="#FFD700" stroke="#DAA520" stroke-width="1.5"/>
+             <circle cx="72" cy="52" r="5" fill="#E91E8C"/>
+             <circle cx="87" cy="48" r="6" fill="#2196F3"/>
+             <circle cx="102" cy="52" r="5" fill="#E91E8C"/>
+             <rect x="67" y="72" width="40" height="8" rx="3" fill="#FFC107"/>`,
+    ribbon: `<path d="M58 74 Q68 58 78 74 Q68 90 58 74Z" fill="#FF1493" stroke="#C2185B" stroke-width="1"/>
+             <path d="M96 74 Q86 58 76 74 Q86 90 96 74Z" fill="#FF1493" stroke="#C2185B" stroke-width="1"/>
+             <circle cx="77" cy="74" r="8" fill="#FF69B4"/>
+             <circle cx="77" cy="74" r="4" fill="#FFD700"/>
+             <path d="M77 82 Q73 94 70 104" stroke="#FF1493" stroke-width="3" fill="none"/>
+             <path d="M77 82 Q81 94 84 104" stroke="#FF1493" stroke-width="3" fill="none"/>`,
+    star:   `<path d="M87 46 L91 60 L106 60 L94 70 L98 84 L87 75 L76 84 L80 70 L68 60 L83 60Z" fill="#FFD700" stroke="#DAA520" stroke-width="1.5"/>`,
+    flower: `<circle cx="87" cy="44" r="10" fill="#FF1493"/>
+             <circle cx="101" cy="52" r="10" fill="#FF69B4"/>
+             <circle cx="73" cy="52" r="10" fill="#E91E8C"/>
+             <circle cx="101" cy="68" r="10" fill="#FF1493"/>
+             <circle cx="73" cy="68" r="10" fill="#FF69B4"/>
+             <circle cx="87" cy="58" r="12" fill="#FFD700"/>
+             <circle cx="87" cy="58" r="5" fill="#FF8F00"/>`,
+    leaf:   `<path d="M87 50 Q106 62 96 82 Q78 72 87 50Z" fill="#4CAF50" stroke="#2E7D32" stroke-width="1"/>
+             <path d="M87 50 Q70 60 78 80 Q92 70 87 50Z" fill="#66BB6A" stroke="#388E3C" stroke-width="1"/>
+             <line x1="87" y1="50" x2="87" y2="78" stroke="#2E7D32" stroke-width="2" fill="none"/>`,
+    bow:    `<path d="M62 76 Q72 60 82 76 Q72 92 62 76Z" fill="#6C5CE7" stroke="#4A3CB0" stroke-width="1.5"/>
+             <path d="M92 76 Q102 60 112 76 Q102 92 92 76Z" fill="#6C5CE7" stroke="#4A3CB0" stroke-width="1.5"/>
+             <circle cx="87" cy="76" r="8" fill="#AFA9EC" stroke="#6C5CE7" stroke-width="2"/>
+             <circle cx="87" cy="76" r="4" fill="#6C5CE7"/>`,
   };
 
   // 목 장식
   const neckMap = {
-    ribbon:   `<path d="M72 160 Q87 152 102 160" stroke="#FF1493" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M82 162 Q87 168 92 162" fill="#FF1493"/>`,
-    necklace: `<path d="M70 162 Q87 174 104 162" stroke="#FFD700" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="87" cy="174" r="5" fill="#FFD700"/>`,
-    scarf:    `<path d="M68 156 Q87 166 106 156" stroke="#E74C3C" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.85"/>`,
-    bowtie:   `<path d="M74 162 Q82 156 87 162 Q82 168 74 162Z" fill="#6C5CE7"/><path d="M87 162 Q92 156 100 162 Q92 168 87 162Z" fill="#6C5CE7"/><circle cx="87" cy="162" r="4" fill="#AFA9EC"/>`,
+    ribbon:   `<path d="M65 160 Q87 148 109 160" stroke="#FF1493" stroke-width="6" fill="none" stroke-linecap="round"/>
+               <path d="M76 164 Q87 178 98 164" fill="#FF1493"/>
+               <circle cx="87" cy="174" r="7" fill="#FF69B4"/>
+               <circle cx="87" cy="174" r="3" fill="#FFD700"/>`,
+    necklace: `<path d="M62 158 Q87 176 112 158" stroke="#CC0000" stroke-width="4" fill="none" stroke-linecap="round"/>
+               <circle cx="74" cy="167" r="9" fill="#FF0000"/>
+               <circle cx="87" cy="172" r="11" fill="#CC0000"/>
+               <circle cx="100" cy="167" r="9" fill="#FF0000"/>
+               <circle cx="87" cy="172" r="5" fill="#FFD700"/>`,
+    scarf:    `<path d="M60 152 Q87 166 114 152" stroke="#E74C3C" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.9"/>
+               <path d="M80 158 Q87 174 92 192" stroke="#C0392B" stroke-width="10" fill="none" stroke-linecap="round"/>
+               <ellipse cx="87" cy="158" rx="4" ry="6" fill="#E74C3C" opacity="0.8"/>`,
+    bowtie:   `<path d="M64 164 Q76 152 86 164 Q76 176 64 164Z" fill="#6C5CE7" stroke="#4A3CB0" stroke-width="2"/>
+               <path d="M88 164 Q98 152 110 164 Q98 176 88 164Z" fill="#6C5CE7" stroke="#4A3CB0" stroke-width="2"/>
+               <circle cx="87" cy="164" r="8" fill="#AFA9EC" stroke="#6C5CE7" stroke-width="2"/>
+               <circle cx="87" cy="164" r="4" fill="#6C5CE7"/>`,
   };
 
   return `
@@ -2521,17 +2866,141 @@ function renderLunaSVG() {
   `;
 }
 
+// ── 꾸미기 탭 전환 ───────────────────────────
+function setGrowthTab(tab) {
+  document.getElementById('growth-luna').style.display  = tab==='luna'  ? 'block' : 'none';
+  document.getElementById('growth-photo').style.display = tab==='photo' ? 'block' : 'none';
+  document.getElementById('ctype-luna').classList.toggle('active', tab==='luna');
+  document.getElementById('ctype-photo').classList.toggle('active', tab==='photo');
+  if (tab==='photo') renderPhotoGrid();
+  if (tab==='luna')  { renderCharSVG(); renderItemCats(); renderItemGrid(); }
+}
+
+// ── 루나 이름 변경 ────────────────────────────
+let lunaName = localStorage.getItem('luna_name') || '루나';
+
+function openLunaNameEdit() {
+  document.getElementById('luna-name-form').style.display = 'block';
+  document.getElementById('luna-name-input').value = lunaName;
+  document.getElementById('luna-name-input').focus();
+}
+function closeLunaNameEdit() {
+  document.getElementById('luna-name-form').style.display = 'none';
+}
+function saveLunaName() {
+  const val = document.getElementById('luna-name-input').value.trim();
+  if (!val) { showToast('이름을 입력해 주세요.'); return; }
+  lunaName = val;
+  localStorage.setItem('luna_name', lunaName);
+  document.getElementById('luna-name-display').textContent = lunaName;
+  const chatName = document.querySelector('.chat-name');
+  if (chatName) chatName.textContent = lunaName;
+  closeLunaNameEdit();
+  showToast(`AI 친구 이름이 "${lunaName}"로 변경됐어요! 🌙`);
+}
+function initLunaName() {
+  const el = document.getElementById('luna-name-display');
+  if (el) el.textContent = lunaName;
+  const chatName = document.querySelector('.chat-name');
+  if (chatName) chatName.textContent = lunaName;
+}
+
+// ── 포토 갤러리 ──────────────────────────────
+let photos = JSON.parse(localStorage.getItem('luna_photos') || '[]');
+let photoModalIdx = -1;
+
+function savePhotos() { localStorage.setItem('luna_photos', JSON.stringify(photos)); }
+
+function addPhotos(input) {
+  const files = Array.from(input.files);
+  if (photos.length + files.length > 20) {
+    showToast('사진은 최대 20장까지 저장할 수 있어요!'); return;
+  }
+  let loaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      photos.push({
+        id: Date.now() + Math.random(),
+        dataUrl: e.target.result,
+        name: file.name.replace(/\.[^.]+$/, ''),
+        date: new Date().toLocaleDateString('ko-KR')
+      });
+      loaded++;
+      if (loaded === files.length) {
+        savePhotos(); renderPhotoGrid();
+        showToast(`사진 ${files.length}장이 추가됐어요! 📷`);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function renderPhotoGrid() {
+  const grid = document.getElementById('photo-grid');
+  if (!grid) return;
+  if (photos.length === 0) {
+    grid.innerHTML = `<div class="photo-empty">📷<br>아직 사진이 없어요<br>위 버튼을 눌러 추가해보세요!</div>`;
+    return;
+  }
+  grid.innerHTML = photos.map((p, i) => `
+    <div class="photo-item" onclick="openPhotoModal(${i})">
+      <img src="${p.dataUrl}" alt="${p.name}" loading="lazy">
+      <div class="photo-item-label">${p.name}</div>
+    </div>
+  `).join('');
+}
+
+function openPhotoModal(idx) {
+  photoModalIdx = idx;
+  const p = photos[idx];
+  document.getElementById('photo-modal-img').src = p.dataUrl;
+  document.getElementById('photo-modal-label').textContent = `📷 ${p.name} · ${p.date}`;
+  document.getElementById('photo-modal').style.display = 'flex';
+}
+function closePhotoModal() {
+  document.getElementById('photo-modal').style.display = 'none';
+  photoModalIdx = -1;
+}
+function deletePhoto() {
+  if (photoModalIdx < 0) return;
+  photos.splice(photoModalIdx, 1);
+  savePhotos(); closePhotoModal(); renderPhotoGrid();
+  showToast('사진이 삭제됐어요.');
+}
+
+// ── 토스트 메시지 ─────────────────────────────
+function showToast(msg) {
+  let toast = document.getElementById('toast-msg');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast-msg';
+    toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#2D2B4E;color:white;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:99999;opacity:0;transition:opacity 0.3s;white-space:nowrap;max-width:80vw;text-align:center';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+}
+
 // 꾸미기 초기화
 function initGrowth() {
+  // 기본 탭: 루나 꾸미기
+  setGrowthTab('luna');
+
+  // 루나 이름 초기화
+  initLunaName();
+
+  // 장착 아이템 복원
   const saved = localStorage.getItem('luna_equipped');
   if (saved) {
-    const data = JSON.parse(saved);
-    charType = data.charType || 'luna';
-    equipped = { ...equipped, ...data.equipped };
-    document.getElementById('char-stage-bg').style.background = equipped.bg || '#EDE9FF';
-    ['luna','boy','girl'].forEach(t => {
-      document.getElementById('ctype-'+t)?.classList.toggle('active', t===charType);
-    });
+    try {
+      const data = JSON.parse(saved);
+      charType = data.charType || 'luna';
+      equipped = { ...equipped, ...data.equipped };
+      document.getElementById('char-stage-bg').style.background = equipped.bg || '#EDE9FF';
+    } catch(e) {}
   }
   renderItemCats();
   renderCharSVG();
@@ -2543,7 +3012,7 @@ function renderSubscription() {
   const descEl = document.getElementById('current-plan-desc');
   const names = { free:'🆓 프리 플랜', bff:'💜 베프 플랜', eternal:'🌟 영원한 친구 플랜' };
   if (nameEl) nameEl.textContent = names[currentPlan] || '🆓 프리 플랜';
-  if (descEl) descEl.textContent = currentPlan === 'free' ? '이번 주 무제한 대화' : '무제한 대화 이용 중';
+  if (descEl) descEl.textContent = '';
 }
 
 // ── 관계이어가기 ──────────────────────────────
@@ -2691,26 +3160,23 @@ async function loadBooks(force = false) {
   const cacheKey = getWeekKey();
   const cached = localStorage.getItem(cacheKey);
 
-  // 강제 새로고침이 아니고 캐시가 있으면 캐시 사용
   if (!force && cached) {
-    booksData = JSON.parse(cached);
-    renderBooks();
-    return;
+    try { booksData = JSON.parse(cached); renderBooks(); return; } catch(e) {}
   }
 
-  // GPT에게 책 추천 요청
+  // 즉시 fallback 표시 (로딩 중에도 보임)
+  booksData = getDefaultBooks();
+  renderBooks();
+
   const profile = window._userProfile || {};
   const age     = getCurrentAge(profile);
   const grade   = getGradeText(age);
   const interests = (profile.interests || []).join(', ') || '독서, 과학, 수학';
   const readTitles = readBooks.map(b => b.title).join(', ') || '없음';
-
-  // 대화에서 감지된 키워드 (chatHistory에서 추출)
   const recentChat = chatHistory.slice(-10).map(m => m.content).join(' ');
   const keywords   = recentChat.length > 10 ? `최근 대화 키워드: ${recentChat.slice(0,100)}` : '';
 
   document.getElementById('books-loading').style.display = 'block';
-  document.getElementById('books-list').style.display = 'none';
 
   try {
     const prompt = `당신은 어린이 도서 전문가예요.
@@ -2730,34 +3196,34 @@ async function loadBooks(force = false) {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] })
     });
     const data = await res.json();
     const text = data.choices?.[0]?.message?.content || '[]';
     const clean = text.replace(/```json|```/g, '').trim();
-    booksData = JSON.parse(clean);
-
-    // 주간 캐시 저장
-    localStorage.setItem(cacheKey, JSON.stringify(booksData));
-
+    const parsed = JSON.parse(clean);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      booksData = parsed;
+      localStorage.setItem(cacheKey, JSON.stringify(booksData));
+    }
   } catch(e) {
-    // API 오류 시 기본 추천
-    booksData = [
-      { title: '수학 천재들의 비밀', author: '이안 스튜어트', reason: '수학을 재미있게 풀어낸 베스트셀러예요.' },
-      { title: '어린이 우주 탐험대', author: '칼 세이건', reason: '우주의 신비를 쉽게 설명한 책이에요.' },
-      { title: '셜록 홈즈 전집', author: '코난 도일', reason: '논리적 사고를 키워주는 추리 소설이에요.' },
-      { title: '어린 왕자', author: '생텍쥐페리', reason: '감수성과 상상력을 풍부하게 해줘요.' },
-      { title: '해리포터와 마법사의 돌', author: 'J.K. 롤링', reason: '상상력과 용기를 키워주는 판타지 소설이에요.' },
-      { title: '80일간의 세계일주', author: '쥘 베른', reason: '넓은 세상을 꿈꾸게 해주는 모험 소설이에요.' },
-      { title: '파브르 곤충기', author: '앙리 파브르', reason: '자연과 과학에 흥미를 갖게 해주는 명작이에요.' },
-    ];
+    // fallback 유지
   }
 
   document.getElementById('books-loading').style.display = 'none';
-  document.getElementById('books-list').style.display = 'block';
   renderBooks();
+}
+
+function getDefaultBooks() {
+  return [
+    { title: '수학 천재들의 비밀', author: '이안 스튜어트', reason: '수학을 재미있게 풀어낸 베스트셀러예요.' },
+    { title: '어린이 우주 탐험대', author: '칼 세이건', reason: '우주의 신비를 쉽게 설명한 책이에요.' },
+    { title: '셜록 홈즈 전집', author: '코난 도일', reason: '논리적 사고를 키워주는 추리 소설이에요.' },
+    { title: '어린 왕자', author: '생텍쥐페리', reason: '감수성과 상상력을 풍부하게 해줘요.' },
+    { title: '해리포터와 마법사의 돌', author: 'J.K. 롤링', reason: '상상력과 용기를 키워주는 판타지 소설이에요.' },
+    { title: '80일간의 세계일주', author: '쥘 베른', reason: '넓은 세상을 꿈꾸게 해주는 모험 소설이에요.' },
+    { title: '파브르 곤충기', author: '앙리 파브르', reason: '자연과 과학에 흥미를 갖게 해주는 명작이에요.' },
+  ];
 }
 
 function renderBooks() {
