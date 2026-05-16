@@ -936,6 +936,49 @@ html, body {
   padding: 40px 20px; color: var(--text-muted); font-size: 14px; line-height: 2;
 }
 
+/* ══════════════════════════════════════
+   추억 저장소
+══════════════════════════════════════ */
+.diary-write-box {
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:16px;margin-bottom:16px;
+}
+.diary-date-row {
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+}
+.diary-today { font-size:13px;font-weight:700;color:var(--primary); }
+
+.diary-item {
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:14px;margin-bottom:10px;
+}
+.diary-item-head { display:flex;align-items:center;justify-content:space-between;margin-bottom:6px; }
+.diary-item-date { font-size:11px;color:var(--text-muted); }
+.diary-item-mood { font-size:20px; }
+.diary-item-text { font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap; }
+.diary-del-btn {
+  background:none;border:none;color:var(--text-muted);
+  font-size:14px;cursor:pointer;padding:2px 6px;
+}
+
+.pin-pad {
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:10px;max-width:260px;margin:0 auto;
+}
+.pin-btn {
+  padding:16px;border-radius:12px;border:1.5px solid var(--border);
+  background:var(--surface);font-size:18px;font-weight:700;
+  font-family:inherit;cursor:pointer;color:var(--text);
+  transition:background 0.1s;
+}
+.pin-btn:active { background:var(--primary-light); }
+.pin-dot {
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--primary);background:transparent;
+  transition:background 0.2s;
+}
+.pin-dot.filled { background:var(--primary); }
+
 </style>
 </head>
 <body>
@@ -1359,7 +1402,10 @@ html, body {
       <!-- 일정 추가 -->
       <div class="sched-add">
         <input class="sched-input" id="sched-title" placeholder="일정 입력 (예: 수학 시험)" maxlength="30">
-        <input class="sched-input sched-date" id="sched-date" type="date">
+        <div style="display:flex;gap:6px;width:100%">
+          <input class="sched-input sched-date" id="sched-date" type="date" style="flex:1">
+          <input class="sched-input" id="sched-time" type="time" style="width:110px">
+        </div>
         <button class="sched-add-btn" onclick="addSchedule()">+ 추가</button>
       </div>
 
@@ -1405,82 +1451,112 @@ html, body {
 
     <!-- 꾸미기 -->
     <div class="page" id="page-growth">
-      <div class="page-title">🎨 꾸미기</div>
-      <div class="page-sub">루나를 꾸미고 소중한 사진을 보관해요</div>
+      <div class="page-title">🌟 추억 저장소</div>
+      <div class="page-sub">소중한 추억을 루나와 함께 보관해요</div>
 
-      <!-- 탭 선택 -->
+      <!-- 탭 -->
       <div class="ctype-row">
-        <button class="ctype-btn active" id="ctype-luna" onclick="setGrowthTab('luna')">🌙 루나 꾸미기</button>
-        <button class="ctype-btn" id="ctype-photo" onclick="setGrowthTab('photo')">📷 포토갤러리</button>
+        <button class="ctype-btn active" id="tab-photos" onclick="setMemoryTab('photos')">📷 포토갤러리</button>
+        <button class="ctype-btn" id="tab-diary" onclick="setMemoryTab('diary')">📝 나만의 일기</button>
+        <button class="ctype-btn" id="tab-secret" onclick="setMemoryTab('secret')">🔒 비밀 공간</button>
       </div>
 
-      <!-- ── 루나 꾸미기 섹션 ── -->
-      <div id="growth-luna">
-
-        <!-- 루나 이름 변경 -->
-        <div class="luna-name-row">
-          <span class="luna-name-label">AI 친구 이름:</span>
-          <span class="luna-name-display" id="luna-name-display">루나</span>
-          <button class="luna-name-edit-btn" onclick="openLunaNameEdit()">✏️ 변경</button>
+      <!-- ── 포토갤러리 ── -->
+      <div id="memory-photos">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+          소중한 사람들의 사진을 보관해요 · 최대 20장
         </div>
-
-        <!-- 이름 변경 폼 -->
-        <div id="luna-name-form" style="display:none;background:var(--primary-light);border-radius:12px;padding:14px;margin-bottom:12px">
-          <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:8px">AI 친구 이름 변경</div>
-          <div style="display:flex;gap:8px">
-            <input id="luna-name-input" class="auth-input" type="text" placeholder="새 이름 입력 (최대 6자)" maxlength="6" style="flex:1">
-            <button onclick="saveLunaName()" class="btn-primary" style="padding:10px 14px;border-radius:10px;font-size:13px">저장</button>
-            <button onclick="closeLunaNameEdit()" style="padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-family:inherit;cursor:pointer;color:var(--text-muted)">취소</button>
-          </div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:6px">💡 변경하면 대화창에서도 새 이름으로 불러요</div>
-        </div>
-
-        <!-- 캐릭터 미리보기 -->
-        <div class="char-stage">
-          <div class="char-stage-bg" id="char-stage-bg">
-            <svg id="char-svg" viewBox="0 0 200 300" width="140" height="210"></svg>
-          </div>
-          <div class="char-badge" id="char-badge">🌱 새싹 친구</div>
-        </div>
-
-        <!-- 아이템 카테고리 -->
-        <div class="icat-scroll" id="icat-scroll"></div>
-
-        <!-- 아이템 그리드 -->
-        <div class="igrid" id="igrid"></div>
-
-      </div><!-- /growth-luna -->
-
-      <!-- ── 포토갤러리 섹션 ── -->
-      <div id="growth-photo" style="display:none">
-
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.6">
-          소중한 사람들의 사진을 보관해요 📷<br>
-          <span style="font-size:11px">최대 20장 · 기기에만 저장돼요</span>
-        </div>
-
-        <!-- 사진 추가 버튼 -->
         <label class="photo-add-btn" for="photo-upload">
           <span style="font-size:28px">📷</span>
           <span style="font-size:13px;font-weight:700;color:var(--primary)">사진 추가하기</span>
-          <span style="font-size:11px;color:var(--text-muted)">탭해서 사진 선택</span>
         </label>
         <input type="file" id="photo-upload" accept="image/*" multiple style="display:none" onchange="addPhotos(this)">
-
-        <!-- 사진 그리드 -->
         <div class="photo-grid" id="photo-grid"></div>
+      </div>
 
-        <!-- 사진 상세 모달 -->
-        <div id="photo-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;flex-direction:column;align-items:center;justify-content:center">
-          <button onclick="closePhotoModal()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:24px;width:40px;height:40px;border-radius:50%;cursor:pointer">✕</button>
-          <img id="photo-modal-img" style="max-width:90vw;max-height:75vh;border-radius:12px;object-fit:contain">
-          <div style="margin-top:16px;display:flex;gap:12px">
-            <div id="photo-modal-label" style="color:white;font-size:14px;font-weight:600"></div>
-            <button id="photo-modal-delete" onclick="deletePhoto()" style="background:#E17055;border:none;color:white;font-size:13px;font-weight:700;padding:8px 18px;border-radius:20px;cursor:pointer;font-family:inherit">🗑 삭제</button>
+      <!-- ── 나만의 일기 ── -->
+      <div id="memory-diary" style="display:none">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+          오늘 하루를 기록해봐요 · 루나만 볼 수 있어요 🌙
+        </div>
+
+        <!-- 일기 작성 -->
+        <div class="diary-write-box">
+          <div class="diary-date-row">
+            <span class="diary-today" id="diary-today-label"></span>
+            <select id="diary-mood" style="border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;font-size:13px;font-family:inherit;background:var(--bg);color:var(--text)">
+              <option value="😊">😊 기분 좋아</option>
+              <option value="😢">😢 슬퍼</option>
+              <option value="😡">😡 화나</option>
+              <option value="😴">😴 피곤해</option>
+              <option value="🤩">🤩 신나</option>
+              <option value="😰">😰 걱정돼</option>
+              <option value="🥰">🥰 설레</option>
+            </select>
+          </div>
+          <textarea id="diary-content" placeholder="오늘 있었던 일을 자유롭게 적어봐요..." style="width:100%;min-height:120px;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-size:14px;font-family:inherit;resize:none;color:var(--text);background:var(--surface);outline:none;line-height:1.7"></textarea>
+          <button class="btn-primary" onclick="saveDiary()" style="width:100%;padding:12px;border-radius:10px;font-size:14px;margin-top:8px">🌙 저장하기</button>
+        </div>
+
+        <!-- 일기 목록 -->
+        <div id="diary-list" style="margin-top:16px"></div>
+      </div>
+
+      <!-- ── 비밀 공간 ── -->
+      <div id="memory-secret" style="display:none">
+
+        <!-- 잠금 화면 -->
+        <div id="secret-locked">
+          <div style="text-align:center;padding:30px 20px">
+            <div style="font-size:52px;margin-bottom:16px">🔒</div>
+            <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px">나만의 비밀 공간</div>
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6">4자리 비밀번호로 잠긴 나만의 공간이에요.<br>아무도 볼 수 없어요!</div>
+            <div style="display:flex;justify-content:center;gap:10px;margin-bottom:16px" id="secret-pin-dots">
+              <div class="pin-dot" id="dot-0"></div>
+              <div class="pin-dot" id="dot-1"></div>
+              <div class="pin-dot" id="dot-2"></div>
+              <div class="pin-dot" id="dot-3"></div>
+            </div>
+            <!-- 숫자 패드 -->
+            <div class="pin-pad">
+              <button class="pin-btn" onclick="pinInput('1')">1</button>
+              <button class="pin-btn" onclick="pinInput('2')">2</button>
+              <button class="pin-btn" onclick="pinInput('3')">3</button>
+              <button class="pin-btn" onclick="pinInput('4')">4</button>
+              <button class="pin-btn" onclick="pinInput('5')">5</button>
+              <button class="pin-btn" onclick="pinInput('6')">6</button>
+              <button class="pin-btn" onclick="pinInput('7')">7</button>
+              <button class="pin-btn" onclick="pinInput('8')">8</button>
+              <button class="pin-btn" onclick="pinInput('9')">9</button>
+              <button class="pin-btn" style="background:var(--bg);color:var(--text-muted)" onclick="pinClear()">지우기</button>
+              <button class="pin-btn" onclick="pinInput('0')">0</button>
+              <button class="pin-btn" style="background:var(--primary);color:white" onclick="pinConfirm()">확인</button>
+            </div>
+            <div id="secret-pin-error" style="color:var(--danger);font-size:12px;margin-top:8px;display:none">❌ 비밀번호가 틀렸어요</div>
           </div>
         </div>
 
-      </div><!-- /growth-photo -->
+        <!-- 비밀 공간 내용 -->
+        <div id="secret-unlocked" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:14px;font-weight:700;color:var(--text)">🔓 비밀 공간</div>
+            <button onclick="lockSecret()" style="background:none;border:1.5px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:inherit">🔒 잠금</button>
+          </div>
+          <textarea id="secret-content" placeholder="여기에 비밀을 적어봐요. 아무도 볼 수 없어요! 🤫" style="width:100%;min-height:200px;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-size:14px;font-family:inherit;resize:none;color:var(--text);background:var(--surface);outline:none;line-height:1.7"></textarea>
+          <button class="btn-primary" onclick="saveSecret()" style="width:100%;padding:12px;border-radius:10px;font-size:14px;margin-top:8px">저장하기</button>
+        </div>
+
+      </div>
+
+      <!-- 사진 모달 -->
+      <div id="photo-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;flex-direction:column;align-items:center;justify-content:center">
+        <button onclick="closePhotoModal()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:24px;width:40px;height:40px;border-radius:50%;cursor:pointer">✕</button>
+        <img id="photo-modal-img" style="max-width:90vw;max-height:75vh;border-radius:12px;object-fit:contain">
+        <div style="margin-top:16px;display:flex;align-items:center;gap:12px">
+          <div id="photo-modal-label" style="color:white;font-size:14px;font-weight:600"></div>
+          <button onclick="deletePhoto()" style="background:#E17055;border:none;color:white;font-size:13px;font-weight:700;padding:8px 18px;border-radius:20px;cursor:pointer;font-family:inherit">🗑 삭제</button>
+        </div>
+      </div>
 
     </div>
 
@@ -1653,8 +1729,8 @@ html, body {
       <span class="nav-label">책추천</span>
     </div>
     <div class="nav-item" id="ni-growth" onclick="goPage('growth')">
-      <span class="nav-icon">🎨</span>
-      <span class="nav-label">꾸미기</span>
+      <span class="nav-icon">🌟</span>
+      <span class="nav-label">추억</span>
     </div>
     <div class="nav-item" id="ni-more" onclick="toggleMore()">
       <span class="nav-icon">⋯</span>
@@ -1743,16 +1819,17 @@ function updateHeaderBtns(loggedIn) {
   const signupBtn = document.getElementById('header-signup-btn');
   const logoutBtn = document.getElementById('header-logout-btn');
   if (!loginBtn) return;
-  if (loggedIn) {
-    loginBtn.style.display  = 'none';
-    signupBtn.style.display = 'none';
-    logoutBtn.style.display = 'block';
-  } else {
-    loginBtn.style.display  = 'block';
-    signupBtn.style.display = 'block';
-    logoutBtn.style.display = 'none';
-  }
+  loginBtn.style.display  = loggedIn ? 'none'  : 'block';
+  signupBtn.style.display = loggedIn ? 'none'  : 'block';
+  logoutBtn.style.display = loggedIn ? 'block' : 'none';
 }
+
+// 페이지 로드 시 즉시 버튼 상태 반영
+window.addEventListener('DOMContentLoaded', () => {
+  const session = localStorage.getItem('luna_session');
+  updateHeaderBtns(!!session);
+  initLunaName();
+});
 
 function onLoginSuccess(id, profile) {
   const name = profile.name || id;
@@ -1999,11 +2076,13 @@ function getDday(dateStr) {
 function addSchedule() {
   const title = document.getElementById('sched-title').value.trim();
   const date  = document.getElementById('sched-date').value;
+  const time  = document.getElementById('sched-time')?.value || '';
   if (!title) { document.getElementById('sched-title').focus(); return; }
-  schedules.push({ id: Date.now(), title, date, done: false });
+  schedules.push({ id: Date.now(), title, date, time, done: false });
   saveSchedules();
   document.getElementById('sched-title').value = '';
   document.getElementById('sched-date').value  = '';
+  if (document.getElementById('sched-time')) document.getElementById('sched-time').value = '';
   renderSchedule();
 }
 
@@ -2013,6 +2092,7 @@ function toggleSched(id) {
 }
 
 function deleteSched(id) {
+  if (!confirm('이 일정을 삭제할까요?')) return;
   schedules = schedules.filter(s => s.id !== id);
   saveSchedules(); renderSchedule();
 }
@@ -2031,7 +2111,11 @@ function renderSchedule() {
   let items = [...schedules];
   if (schedFilter === 'upcoming') items = items.filter(s => !s.done);
   if (schedFilter === 'done')     items = items.filter(s => s.done);
-  items.sort((a,b) => (a.date||'9999') < (b.date||'9999') ? -1 : 1);
+  items.sort((a,b) => {
+    const da = (a.date||'9999') + (a.time||'00:00');
+    const db = (b.date||'9999') + (b.time||'00:00');
+    return da < db ? -1 : 1;
+  });
 
   if (items.length === 0) {
     list.innerHTML = `<div class="sched-empty">📅<br>${schedFilter==='done'?'완료된 일정이 없어요':'다가오는 일정이 없어요'}<br>위에서 일정을 추가해 보세요!</div>`;
@@ -2040,14 +2124,15 @@ function renderSchedule() {
 
   list.innerHTML = items.map(s => {
     const dday = getDday(s.date);
+    const timeStr = s.time ? ` ${s.time}` : '';
     let dateLabel = '', dateClass = 'normal';
     if (s.done) { dateLabel = '✅ 완료'; dateClass = 'done-label'; }
-    else if (dday === null) { dateLabel = '날짜 미정'; }
-    else if (dday < 0)  { dateLabel = `${Math.abs(dday)}일 지남`; dateClass = 'normal'; }
-    else if (dday === 0){ dateLabel = '📅 오늘!'; dateClass = 'urgent'; }
-    else if (dday === 1){ dateLabel = '📅 내일!'; dateClass = 'urgent'; }
-    else if (dday <= 7) { dateLabel = `📅 ${dday}일 후`; dateClass = 'soon'; }
-    else { dateLabel = `📅 ${s.date}`; dateClass = 'normal'; }
+    else if (dday === null) { dateLabel = `날짜 미정${timeStr}`; }
+    else if (dday < 0)  { dateLabel = `${Math.abs(dday)}일 지남`; }
+    else if (dday === 0){ dateLabel = `📅 오늘${timeStr}`; dateClass = 'urgent'; }
+    else if (dday === 1){ dateLabel = `📅 내일${timeStr}`; dateClass = 'urgent'; }
+    else if (dday <= 7) { dateLabel = `📅 ${dday}일 후${timeStr}`; dateClass = 'soon'; }
+    else { dateLabel = `📅 ${s.date}${timeStr}`; }
 
     return `<div class="sched-item ${s.done?'done':''}">
       <div class="sched-check ${s.done?'checked':''}" onclick="toggleSched(${s.id})">${s.done?'✓':''}</div>
@@ -2059,14 +2144,15 @@ function renderSchedule() {
     </div>`;
   }).join('');
 
-  // 루나 알림 (D-day 1일 이내)
+  // 루나 알림
   const urgent = schedules.filter(s => !s.done && getDday(s.date) !== null && getDday(s.date) <= 1 && getDday(s.date) >= 0);
   const notif = document.getElementById('sched-notif');
   if (urgent.length > 0 && notif) {
     const s = urgent[0];
     const dday = getDday(s.date);
+    const timeStr = s.time ? ` ${s.time}에` : '';
     document.getElementById('sched-notif-text').textContent =
-      `"${s.title}" 일정이 ${dday===0?'오늘':'내일'}이에요! 잘 준비하고 있어? 💪`;
+      `"${s.title}" 일정이 ${dday===0?`오늘${timeStr}`:'내일'}이에요! 잘 준비하고 있어? 💪`;
     notif.style.display = 'flex';
   } else if (notif) {
     notif.style.display = 'none';
@@ -2866,6 +2952,151 @@ function renderLunaSVG() {
   `;
 }
 
+// ── 추억 저장소 탭 ───────────────────────────
+function setMemoryTab(tab) {
+  ['photos','diary','secret'].forEach(t => {
+    document.getElementById('memory-'+t).style.display = t===tab ? 'block' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  });
+  if (tab==='photos') renderPhotoGrid();
+  if (tab==='diary')  { initDiaryLabel(); renderDiaryList(); }
+  if (tab==='secret') initSecretTab();
+}
+
+// ── 나만의 일기 ──────────────────────────────
+let diaries = JSON.parse(localStorage.getItem('luna_diaries') || '[]');
+
+function saveDiaries() { localStorage.setItem('luna_diaries', JSON.stringify(diaries)); }
+
+function initDiaryLabel() {
+  const el = document.getElementById('diary-today-label');
+  if (el) {
+    const now = new Date();
+    el.textContent = `📅 ${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()}`;
+  }
+}
+
+function saveDiary() {
+  const content = document.getElementById('diary-content').value.trim();
+  const mood    = document.getElementById('diary-mood').value;
+  if (!content) { showToast('일기 내용을 입력해 주세요.'); return; }
+  const now = new Date();
+  diaries.unshift({
+    id: Date.now(),
+    content, mood,
+    date: `${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()}`,
+    time: `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`
+  });
+  saveDiaries();
+  document.getElementById('diary-content').value = '';
+  renderDiaryList();
+  showToast('일기가 저장됐어요! 🌙');
+}
+
+function deleteDiary(id) {
+  if (!confirm('이 일기를 삭제할까요?')) return;
+  diaries = diaries.filter(d => d.id !== id);
+  saveDiaries(); renderDiaryList();
+}
+
+function renderDiaryList() {
+  const list = document.getElementById('diary-list');
+  if (!list) return;
+  if (diaries.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:14px">📝 아직 일기가 없어요<br>첫 번째 일기를 써봐요!</div>`;
+    return;
+  }
+  list.innerHTML = diaries.map(d => `
+    <div class="diary-item">
+      <div class="diary-item-head">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="diary-item-mood">${d.mood}</span>
+          <span class="diary-item-date">${d.date} ${d.time}</span>
+        </div>
+        <button class="diary-del-btn" onclick="deleteDiary(${d.id})">🗑</button>
+      </div>
+      <div class="diary-item-text">${d.content.replace(/</g,'&lt;')}</div>
+    </div>
+  `).join('');
+}
+
+// ── 비밀 공간 ────────────────────────────────
+let pinValue = '';
+const SECRET_KEY = 'luna_secret_pin';
+const SECRET_CONTENT_KEY = 'luna_secret_content';
+
+function initSecretTab() {
+  const hasPin = !!localStorage.getItem(SECRET_KEY);
+  document.getElementById('secret-locked').style.display   = 'block';
+  document.getElementById('secret-unlocked').style.display = 'none';
+  pinValue = '';
+  updatePinDots();
+  document.getElementById('secret-pin-error').style.display = 'none';
+  if (!hasPin) {
+    // 처음 설정
+    document.getElementById('secret-pin-error').textContent = '🔑 처음이에요! 사용할 비밀번호 4자리를 입력하세요';
+    document.getElementById('secret-pin-error').style.display = 'block';
+    document.getElementById('secret-pin-error').style.color = 'var(--primary)';
+  }
+}
+
+function pinInput(num) {
+  if (pinValue.length >= 4) return;
+  pinValue += num;
+  updatePinDots();
+}
+
+function pinClear() {
+  pinValue = pinValue.slice(0, -1);
+  updatePinDots();
+}
+
+function updatePinDots() {
+  for (let i=0; i<4; i++) {
+    const dot = document.getElementById('dot-'+i);
+    if (dot) dot.classList.toggle('filled', i < pinValue.length);
+  }
+}
+
+function pinConfirm() {
+  if (pinValue.length < 4) { showToast('4자리를 모두 입력해 주세요.'); return; }
+  const savedPin = localStorage.getItem(SECRET_KEY);
+  if (!savedPin) {
+    // 처음 설정
+    localStorage.setItem(SECRET_KEY, pinValue);
+    unlockSecret();
+    showToast('비밀번호가 설정됐어요! 🔑');
+  } else if (savedPin === pinValue) {
+    unlockSecret();
+  } else {
+    document.getElementById('secret-pin-error').textContent = '❌ 비밀번호가 틀렸어요';
+    document.getElementById('secret-pin-error').style.color = 'var(--danger)';
+    document.getElementById('secret-pin-error').style.display = 'block';
+    pinValue = '';
+    updatePinDots();
+  }
+}
+
+function unlockSecret() {
+  document.getElementById('secret-locked').style.display   = 'none';
+  document.getElementById('secret-unlocked').style.display = 'block';
+  const saved = localStorage.getItem(SECRET_CONTENT_KEY) || '';
+  document.getElementById('secret-content').value = saved;
+}
+
+function lockSecret() {
+  document.getElementById('secret-locked').style.display   = 'block';
+  document.getElementById('secret-unlocked').style.display = 'none';
+  pinValue = '';
+  updatePinDots();
+}
+
+function saveSecret() {
+  const content = document.getElementById('secret-content').value;
+  localStorage.setItem(SECRET_CONTENT_KEY, content);
+  showToast('저장됐어요! 🤫');
+}
+
 // ── 꾸미기 탭 전환 ───────────────────────────
 function setGrowthTab(tab) {
   document.getElementById('growth-luna').style.display  = tab==='luna'  ? 'block' : 'none';
@@ -2986,25 +3217,8 @@ function showToast(msg) {
 
 // 꾸미기 초기화
 function initGrowth() {
-  // 기본 탭: 루나 꾸미기
-  setGrowthTab('luna');
-
-  // 루나 이름 초기화
+  setMemoryTab('photos');
   initLunaName();
-
-  // 장착 아이템 복원
-  const saved = localStorage.getItem('luna_equipped');
-  if (saved) {
-    try {
-      const data = JSON.parse(saved);
-      charType = data.charType || 'luna';
-      equipped = { ...equipped, ...data.equipped };
-      document.getElementById('char-stage-bg').style.background = equipped.bg || '#EDE9FF';
-    } catch(e) {}
-  }
-  renderItemCats();
-  renderCharSVG();
-  renderItemGrid();
 }
 
 function renderSubscription() {
@@ -3228,16 +3442,23 @@ function getDefaultBooks() {
 
 function renderBooks() {
   const list = document.getElementById('books-list');
-
-  // 읽은 책 제외
-  const showing = booksData.filter(b => !readBooks.find(r => r.title === b.title));
-
-  // 부제목 업데이트
+  const sub  = document.getElementById('books-sub');
   const profile = window._userProfile || {};
   const age = getCurrentAge(profile);
   const grade = getGradeText(age);
-  const sub = document.getElementById('books-sub');
   if (sub) sub.textContent = `${grade} 수준 · 관심사 맞춤 추천`;
+
+  // 읽은 책 제외
+  let showing = booksData.filter(b => !readBooks.find(r => r.title === b.title));
+
+  // 7권 미만이면 fallback에서 채우기
+  if (showing.length < 7) {
+    const fallback = getDefaultBooks().filter(b =>
+      !readBooks.find(r => r.title === b.title) &&
+      !showing.find(s => s.title === b.title)
+    );
+    showing = [...showing, ...fallback].slice(0, 7);
+  }
 
   if (showing.length === 0) {
     list.innerHTML = `<div class="books-empty">📚<br>모든 책을 읽었어요! 대단해요 🎉<br>새로 추천받기를 눌러보세요.</div>`;
@@ -3403,15 +3624,43 @@ async function sendMessage() {
 
 async function callLunaAI(userMessage) {
   try {
+    const profile = window._userProfile || {};
+    const name = profile.name || '친구';
+    const age = profile.age || 12;
+    const interests = (profile.interests || []).join(', ') || '다양한 것';
+    const lunaNameCurrent = lunaName || '루나';
+
+    const systemPrompt = {
+      role: 'system',
+      content: `너는 "${lunaNameCurrent}"라는 이름의 AI 친구야. 
+지금 대화하는 친구는 ${name}이고 ${age}살이야. 관심사는 ${interests}이야.
+반드시 한국어로 대화해. 친구처럼 편하고 따뜻하게 말해줘.
+짧고 자연스럽게 대화해. 이모티콘을 적절히 사용해.
+공부나 독서를 자연스럽게 권유하는 것도 좋아.
+절대 어른스럽거나 딱딱하게 말하지 마. 또래 친구처럼 말해줘.`
+    };
+
+    const messages = [systemPrompt, ...chatHistory.slice(-20)];
+
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: chatHistory.slice(-20) })
+      body: JSON.stringify({ messages })
     });
+
+    if (!res.ok) {
+      console.error('API 오류:', res.status);
+      return `${lunaNameCurrent}: 지금 잠깐 생각 중이야... 다시 말해줄래? 😊`;
+    }
+
     const data = await res.json();
-    return data.choices?.[0]?.message?.content || '';
+    const reply = data.choices?.[0]?.message?.content;
+    if (!reply) return `${lunaNameCurrent}: 응? 잘 못 들었어. 다시 말해줄래? 😅`;
+    return reply;
+
   } catch(e) {
-    return '지금 잠깐 생각 중이야... 다시 말해줄래? 😊';
+    console.error('대화 오류:', e);
+    return '지금 잠깐 연결이 안 되는 것 같아. 조금 후에 다시 말해줄래? 😊';
   }
 }
 
